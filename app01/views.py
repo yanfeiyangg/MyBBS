@@ -1,6 +1,7 @@
 from django.shortcuts import render, HttpResponse, redirect
 from django.http import JsonResponse
 from django.db.models import F
+from django.db.models import Avg, Count
 import json
 # 画图库
 from PIL import Image, ImageDraw, ImageFont
@@ -117,8 +118,35 @@ def logout(request):
 
 
 # 首页
-def index(request):
-    article_list = models.Article.objects.all()
+def index(request,**kwargs):
+    # ************   获取所有标签、分类、日期归档等 *********************
+    # 找到博客下的所有分类以及对应的文章数量
+    cate_list = models.Category.objects.all().annotate(count=Count("article")).values_list("title","count")
+    # 找到博客下的所有标签以及对应的文章数量
+    tag_list = models.Tag.objects.all().annotate(count=Count("article")).values_list("title", "count")
+    # 日期归档
+    date_list = models.Article.objects.all().extra(
+        select={"create_ym": "DATE_FORMAT(create_time,'%%Y-%%m')"}).values("create_ym").annotate(
+        count=Count("*")).values_list("create_ym", "count")
+
+    # *********************************************************************#
+    # 获取筛选内容
+    pos = kwargs.get('position', None)
+    parameter = kwargs.get('parameter', None)
+    print(pos)
+    print(parameter)
+    # 获得文章
+    if not pos:
+        article_list = models.Article.objects.all()
+    elif pos == 'cate':
+        article_list = models.Article.objects.all().filter(category__title=parameter)
+    elif pos == 'tag':
+        article_list = models.Article.objects.all().filter(tags__title=parameter)
+    elif pos == 'date':
+        year, month = parameter.split('-')
+        print(year, month)
+        article_list = models.Article.objects.all().filter(create_time__year=year)
+        # article_list = models.Article.objects.filter(user=user).filter(tags__title=parameter)
     return render(request, "index.html", locals())
 
 

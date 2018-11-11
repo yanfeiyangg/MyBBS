@@ -5,6 +5,7 @@
     <link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="/static/fontawesome/css/font-awesome.css">
     <link rel="stylesheet" href="/static/css/index.css">
+    <link rel="stylesheet" href="/static/css/homesite.css">
     <title>首页</title>
 </head>
 <body>
@@ -88,7 +89,34 @@
                     {% endfor %}
                 </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-4 panel_list">
+                <div class="menu">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">分类归档</div>
+                        <div class="panel-body">
+                            {% for cate in cate_list %}
+                                <a href="/index/cate/{{ cate.0 }}/">{{ cate.0 }}<span class="label label-default panel_num">{{ cate.1 }}</span></a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">标签归档</div>
+                        <div class="panel-body">
+                            {% for tag in tag_list %}
+                                <a href="/index/tag/{{ tag.0 }}/">{{ tag.0 }}<span class="label label-default panel_num">{{ tag.1 }}</span></a>
+                            {% endfor %}
+
+                        </div>
+                    </div>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">日期归档</div>
+                        <div class="panel-body">
+                            {% for date in date_list %}
+                                <a href="/index/date/{{ date.0 }}">{{ date.0 }}<span class="label label-default panel_num">{{ date.1 }}</span></a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

@@ -30,7 +30,8 @@ urlpatterns = [
     url(r'^reg/', views.reg),
     url(r'^logout/', views.logout),
     url(r'^get_vaild_img/', views.get_vaild_img),
-    url(r'^index/', views.index),
+    # 加入 position 和 parameter ，用于首页筛选所有文章
+    url(r'^index/(?P<position>cate|tag|date)/(?P<parameter>[\w\W]+)/', views.index),
     url(r'^$', views.index),
 
     #上传图片
