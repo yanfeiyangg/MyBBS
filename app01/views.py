@@ -252,6 +252,23 @@ def delete_article(request,article_id):
         else:
             return JsonResponse({"status":"1"})
 
+#  后台 ——> 编辑文章
+def edit_article(request,article_id):
+    if request.method=="GET":
+        article = models.Article.objects.filter(pk=article_id).values_list("title","articledetail__content")
+        data={"title":article[0][0],"content":article[0][1]}
+        return render(request,"edit_article.html",locals())
+    if request.method=="POST":
+        # 获取表单信息
+        title = request.POST.get("title")
+        article_content = request.POST.get("article_content")
+        username = request.user.username
+        # 修改文章内容
+        article = models.Article.objects.filter(pk=article_id) #获取文章对象
+        articleDetail = models.ArticleDetail.objects.filter(pk=article_id)
+        articleDetail.update(content=article_content)
+        article.update(title=title)
+        return redirect("/blog/"+username+"/articles/"+article_id)
 
 # 富文本编译器，上传图片并显示
 def upload(request):

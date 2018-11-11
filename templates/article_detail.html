@@ -1,7 +1,9 @@
 {% extends "article_base.html" %}
+<!-- block css-->
 {% block css %}
     <link rel="stylesheet" href="/static/css/article_detail.css">
 {% endblock %}
+<!-- block head-->
 {% block head %}
     <nav class="navbar navbar-default navbar-fixed-top">
     <div class="container-fluid">
@@ -46,10 +48,12 @@
     </div>
 </nav>
 {% endblock %}
+<!-- block content-->
 {% block content %}
     {% csrf_token %}
     <div class="article_title">
-        <h3>{{ article.title }}</h3>
+        <h3 >{{ article.title }}</h3>
+        <hr/>
     </div>
     <div class="article_body">
         <p>{{ article.articledetail.content|safe }}</p>

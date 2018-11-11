@@ -1,7 +1,9 @@
 {% extends "backend_base.html" %}
+<!-- block css-->
 {% block css %}
     <link rel="stylesheet" href="/static/css/add_article.css">
 {% endblock %}
+<!-- block content-->
 {% block content %}
     <div class="content">
         <form action="/blog/backend/add_article/" method="post">
@@ -33,4 +35,49 @@
             });
         });
     </script>
+{% endblock %}
+<!-- block head-->
+{% block head %}
+    <nav class="navbar navbar-default navbar-fixed-top">
+        <div class="container-fluid">
+            <div class="nav-mar">
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="#">
+                        <img alt="Brand" src="/static/img/ctbulogo.gif" width="200">
+                    </a>
+                    {#            <a class="navbar-brand" href="#">CTBU学习论坛</a>#}
+                </div>
+            </div>
+            <div class="nav-rig">
+                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                    <ul class="nav navbar-nav">
+                        <li><a href="/index/">首页 <span class="sr-only"></span></a></li>
+                        <li><a href="/blog/{{ user.username }}">博客</a></li>
+                        <li class="active"><a href="/blog/backend/">管理</a></li>
+                        <li><a href="#">关于</a></li>
+                    </ul>
+                    <ul class="nav navbar-nav navbar-right">
+                        {% if request.user.username %}
+                            <li><a href="#">{{ request.user.username }}</a></li>
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
+                                   aria-haspopup="true"
+                                   aria-expanded="false">设置 <span class="caret"></span></a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="#">个人中心</a></li>
+                                    <li><a href="#">修改密码</a></li>
+                                    <li><a href="/login/">切换用户</a></li>
+                                    <li role="separator" class="divider"></li>
+                                    <li><a href="/logout/">注销</a></li>
+                                </ul>
+                            </li>
+                        {% else %}
+                            <li><a href="/login/">登录</a></li>
+                            <li><a href="/reg/">注册</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
 {% endblock %}
