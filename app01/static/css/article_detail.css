@@ -1,0 +1,90 @@
+
+#div_digg {
+
+    float: right;
+    margin-bottom: 10px;
+    margin-right: 30px;
+    font-size: 12px;
+    width: 125px;
+    text-align: center;
+    margin-top: 50px;
+}
+
+.diggit {
+    float: left;
+    width: 46px;
+    height: 52px;
+    background: url("/static/img/upup.gif") no-repeat;
+    text-align: center;
+    cursor: pointer;
+    margin-top: 2px;
+    padding-top: 5px;
+}
+
+.buryit {
+    float: right;
+    margin-left: 20px;
+    width: 46px;
+    height: 52px;
+    background: url("/static/img/downdown.gif") no-repeat;
+    text-align: center;
+    cursor: pointer;
+    margin-top: 2px;
+    padding-top: 5px;
+}
+
+.clear {
+    clear: both;
+}
+
+#div_digg .diggword {
+    margin-top: 5px;
+    margin-left: 0;
+    font-size: 12px;
+    color: red;
+}
+
+.login_tips {
+    background-image: url("/static/img/comment.gif");
+    background-repeat: no-repeat;
+    margin-top: 10px;
+    padding: 0 0 10px 25px;
+    font-weight: bold;
+}
+
+.author {
+    background-position: 3px -3px;
+    background-image: url("/static/img/form.gif");
+    background-repeat: no-repeat;
+    border: 1px solid #ccc;
+    padding: 4px 4px 4px 30px;
+    width: 300px;
+    font-size: 13px;
+}
+
+textarea {
+    width: 450px;
+    height: 300px;
+    font-size: 13px;
+    border: 1px solid #ccc;
+    font-family: 'PingFang SC','Helvetica Neue','Helvetica','Arial',sans-serif;
+}
+.comment_one a {
+    color: #399ab2;
+    text-decoration: none;
+}
+.blog_comment_body {
+    color: #888;
+    font-size: 15px;
+    line-height: 135%;
+    padding: 7px;
+    padding-right: 0;
+}
+.well{
+    margin-bottom: 0;
+    padding: 16px;
+}
+.list-group p{
+    margin-bottom: 2px;
+}
+

@@ -1,0 +1,173 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    margin-top: 70px;
+    width: 94%;
+    margin-left: 50px;
+    margin-right: 50px;
+
+}
+
+.article_item {
+    padding: 20px;
+    margin-top: 10px;
+    position: relative;
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    min-width: 0;
+    word-wrap: break-word;
+    background-color: #fff;
+    background-clip: border-box;
+    border: 1px solid rgba(0, 0, 0, .125);
+    border-radius: .25rem;
+}
+
+.article_title a {
+    font-size: 25px;
+    line-height: 1.2;
+}
+
+.article_foot {
+    font-size: 16px;
+    margin-top: 10px;
+    color: #868e96;
+}
+
+.desc {
+    font-size: 16px;
+}
+
+img {
+    vertical-align: middle;
+    border-style: none;
+}
+
+.logo {
+    padding-left: 100px;
+    width: 55px;
+    height: 64px;
+    overflow: hidden;
+    margin-right: 20px;
+}
+
+.navbar-brand {
+    padding: 5px;
+}
+
+.nav-mar {
+    margin-left: 120px;
+}
+
+.nav-rig {
+    margin-right: 100px;
+}
+
+.jumbotron {
+    margin: 0;
+    padding: 0;
+    height: 500px;
+    overflow: hidden;
+}
+
+.backImg {
+    background-color: #0f0f0f;
+    position: absolute;
+    top: -353px;
+    opacity: .7;
+    height: 854px;
+    overflow: hidden;
+    width: 100%;
+
+}
+
+.backColor {
+    height: 500px;
+    background-color: #0f0f0f;
+}
+
+.jumbotron p {
+    width: 504px;
+    position: absolute;
+    font-size: 50px;
+    top: 35%;
+    left: 40%;
+    color: #f7f7f7;
+}
+
+.text-dark {
+    color: #343a40 !important;
+    font-weight: bold;
+    font-size: 1.5rem;
+}
+
+.panel_list{
+    width: 311px;
+    margin-top: 10px;
+}
+
+
+.panel_list a{
+    padding: 6px;
+    float: left;
+    border: 1px solid rgb(0,123,255);
+    font-size: 15px;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    border-radius: 5px;
+    color: rgb(0,123,255);
+}
+
+.panel_list a:hover{
+    padding: 6px;
+    float: left;
+    border: 1px solid white;
+    font-size: 15px;
+    margin-bottom: 5px;
+    border-radius: 5px;
+    color: white;
+    text-decoration: none;
+    background-color: rgb(0,123,255);
+
+}
+
+.panel_num{
+    background-color: rgb(0,123,255);
+    margin-left: 4px;
+}
+
+.footer_body{
+    height: 200px;
+    background-color:rgb(155,155,160);
+}
+
+.list-inline-item{
+    font-size: 17px;
+}
+.text-color{
+    color: #30363c;
+}
+
+.footer_text{
+    margin-left: 100px;
+    margin-top: 70px;
+}
+
+footer .container{
+    margin-left: 250px;
+    padding-top: 50px;
+}
+
+footer a:hover{
+    color: white;
+}
+footer a:focus{
+    color: blue;
+}
+
+
+

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/fontawesome/css/font-awesome.css">
+    <link rel="stylesheet" href="/static/css/index.css">
+    <title>首页</title>
+</head>
+<body>
+
+<nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container-fluid">
+        <div class="nav-mar">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">
+                    <img alt="Brand" src="/static/img/ctbulogo.gif" width="200">
+                </a>
+                {#            <a class="navbar-brand" href="#">CTBU学习论坛</a>#}
+            </div>
+        </div>
+        <div class="nav-rig">
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    <li class="active"><a href="/index/">首页 <span class="sr-only">(current)</span></a></li>
+                    <li><a href="#">博客</a></li>
+                    <li><a href="/blog/backend/">管理</a></li>
+                    <li><a href="#">关于</a></li>
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    {% if request.user.username %}
+                        <li><a href="#">{{ request.user.username }}</a></li>
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
+                               aria-haspopup="true"
+                               aria-expanded="false">设置 <span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="#">个人中心</a></li>
+                                <li><a href="#">修改密码</a></li>
+                                <li><a href="/login/">切换用户</a></li>
+                                <li role="separator" class="divider"></li>
+                                <li><a href="/logout/">注销</a></li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li><a href="/login/">登录</a></li>
+                        <li><a href="/reg/">注册</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="jumbotron">
+    <p>CTBU Learning Forum记录校园美好生活</p>
+    <div class="backColor"></div>
+    <div class="backImg">
+        <img src="/static/img/home-bg.jpg" alt="">
+    </div>
+
+</div>
+<div class="container">
+    <div class="col-md-10 col-md-offset-1">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="article_list">
+                    {% for article in article_list %}
+                        <div class="article_item">
+                            <div class="article_title">
+                                <h4><a class="text-dark" target="_blank"
+                                       href="/blog/{{ article.user.username }}/articles/{{ article.pk }}/">{{ article.title }}</a>
+                                </h4>
+                            </div>
+                            <div class="article_body">
+                                <div class="desc">
+                                    {{ article.desc }}
+                                </div>
+                            </div>
+                            <div class="article_foot text-right">
+                                <span>
+                                    <a href="/blog/{{ article.user.username }}/">{{ article.user.username }}</a>&nbsp;&nbsp;
+                                </span>
+                                <span>{{ article.create_time|date:"Y-m-d" }}</span>
+
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="col-md-4">
+            </div>
+        </div>
+    </div>
+    <div class="col-md-1"></div>
+</div>
+<footer class="py-5 footer_body">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <ul class="list-inline">
+                    <li class="list-inline-item">
+                        <a href="/" class="text-color">首页</a>
+                    </li>
+                    <li class="list-inline-item">⋅</li>
+                    <li class="list-inline-item">
+                        <a href="/post" class="text-color">博客</a>
+                    </li>
+                    <li class="list-inline-item">⋅</li>
+                    <li class="list-inline-item">
+                        <a href="/resume" class="text-color">关于</a>
+                    </li>
+                    <li class="list-inline-item">⋅</li>
+                    <li class="list-inline-item">
+                        <a href="http://github.com/JamesZBL/FS-Blog" target="_blank" class="text-color">Github 项目</a>
+                    </li>
+                </ul>
+                <p class="small ">© JamesZBL 2017-2018 All Rights Reserved. </p>
+                <p class="small">冀 ICP 备 18000182 号</p>
+            </div>
+            <div class="col-md-6 footer_icon">
+                <ul class="list-inline mb-0">
+                    <li class="list-inline-item mr-3">
+                        <a class="text-color" id="aaa">
+                            <i class="fa fa-github fa-2x fa-fw"></i>
+                        </a>
+                    </li>
+                    <li class="list-inline-item mr-3">
+                        <a class="text-color" id="id_qq">
+                            <i class="fa fa-qq fa-2x fa-fw"></i>
+                        </a>
+                    </li>
+                    <li class="list-inline-item">
+                        <a class="text-color" id="id_a_wechat">
+                            <i class="fa fa-wechat fa-2x fa-fw"></i>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</footer>
+<script src="/static/js/jquery-3.3.1.js"></script>
+<script src="/static/bootstrap/js/bootstrap.min.js"></script>
+</body>
+</html>

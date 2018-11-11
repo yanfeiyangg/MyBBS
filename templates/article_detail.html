@@ -1,0 +1,248 @@
+{% extends "article_base.html" %}
+{% block css %}
+    <link rel="stylesheet" href="/static/css/article_detail.css">
+{% endblock %}
+{% block head %}
+    <nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container-fluid">
+        <div class="nav-mar">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">
+                    <img alt="Brand" src="/static/img/ctbulogo.gif" width="200">
+                </a>
+                {#            <a class="navbar-brand" href="#">CTBU学习论坛</a>#}
+            </div>
+        </div>
+        <div class="nav-rig">
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    <li><a href="/index/">首页 <span class="sr-only">(current)</span></a></li>
+                    <li class="active"><a href="/blog/{{ user.username }}">博客</a></li>
+                    <li><a href="/blog/backend/">管理</a></li>
+                    <li><a href="#">关于</a></li>
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    {% if request.user.username %}
+                        <li><a href="#">{{ request.user.username }}</a></li>
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
+                               aria-haspopup="true"
+                               aria-expanded="false">设置 <span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="#">个人中心</a></li>
+                                <li><a href="#">修改密码</a></li>
+                                <li><a href="/login/">切换用户</a></li>
+                                <li role="separator" class="divider"></li>
+                                <li><a href="/logout/">注销</a></li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li><a href="/login/">登录</a></li>
+                        <li><a href="/reg/">注册</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</nav>
+{% endblock %}
+{% block content %}
+    {% csrf_token %}
+    <div class="article_title">
+        <h3>{{ article.title }}</h3>
+    </div>
+    <div class="article_body">
+        <p>{{ article.articledetail.content|safe }}</p>
+    </div>
+
+    <!--点赞-->
+    <div id="div_digg">
+        <div class="diggit action">
+            <span class="diggnum" id="digg_count">{{ article.up_count }}</span>
+        </div>
+        <div class="buryit action">
+            <span class="burynum" id="bury_count">{{ article.down_count }}</span>
+        </div>
+        <div class="clear"></div>
+        <div class="diggword" id="digg_tips"></div>
+    </div>
+    <div class="clear"></div>
+    <!--评论楼-->
+    <div class="comment_list">
+        {% if comment_list %}
+            <hr/>
+            <div class="login_tips">
+                <p>评论列表</p>
+            </div>
+        {% endif %}
+        <ul class="list-group">
+            {% for comment in comment_list %}
+                <li class="list-group-item">
+                    <div class="comment_one">
+                        <a>#{{ forloop.counter }}楼</a>&nbsp;&nbsp;&nbsp;
+                        <span>{{ comment.create_time|date:"Y-m-d H:i" }}</span>&nbsp;&nbsp;&nbsp;
+                        <a href="/blog/{{ comment.user.username }}/">{{ comment.user.username }}</a>
+                        <a href="javascript:void(0);" class="pull-right reply" username="{{ comment.user.username }}"
+                           pid="{{ comment.pk }} ">回复</a>
+                    </div>
+                    <div class="blog_comment_body">
+                        {% if comment.parent_comment_id %}
+                            <div class="well small">
+                                <p>
+                                    <a href="/blog/{{ comment.parent_comment.user.username }}/">@{{ comment.parent_comment.user.username }}</a>
+                                </p>
+                                <p>{{ comment.parent_comment.content }}</p>
+                            </div>
+                            <div>
+                                <p>{{ comment.content }}</p>
+                            </div>
+
+                        {% else %}
+                            <p>{{ comment.content }}</p>
+                        {% endif %}
+
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+    <!--评论输入区-->
+    <div class="comment_window">
+        <hr/>
+        {% if not request.user.username %}
+            <!--未登录提示-->
+            <div class="login_tips">注册用户登录后才能发表评论，请
+                <a href="/login/" class="underline">登录</a>
+                或
+                <a href="/reg/" class="underline">注册</a>，<a
+                        href="/index/">访问</a>网站首页。
+            </div>
+        {% else %}
+            <!--评论提交区-->
+            <div>
+                <div class="login_tips">
+                    <p>发表评论</p>
+                </div>
+                <div>
+                    <p>昵称：<input type="text" class="author" size="50" value="{{ request.user.username }}" disabled/>
+                    </p>
+                </div>
+                <div>
+                    <textarea name="" id="comment_textarea" cols="50" rows="10"></textarea>
+                </div>
+                <div>
+                    <input type="button" value="提交评论" class="btn btn-default" id="comment_submit">
+                    <span id="msg_submit"></span>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+
+
+    <script>
+        var pid = "";
+        //点赞功能
+        $('#div_digg .action').click(function () {
+            var is_up = $(this).hasClass("diggit");
+            var article_id = "{{ article.pk }}";
+            //如果已登录
+            if ("{{ request.user.username }}") {
+                $.ajax({
+                    url: "/blog/poll/",
+                    type: "post",
+                    data: {
+                        "is_up": is_up,
+                        "article_id": article_id,
+                        "csrfmiddlewaretoken": $("[name='csrfmiddlewaretoken").val()
+                    },
+                    success: function (data) {
+                        if (data.state) {
+                            if (is_up) {
+                                var val = parseInt($('#digg_count').text()) + 1;
+                                $('#digg_count').html(val);
+                            }
+                            else {
+                                var val = parseInt($('#bury_count').text()) + 1;
+                                $('#bury_count').html(val);
+                            }
+                        } else {
+                            if (data.is_up) {
+                                $("#digg_tips").html("您已经推荐过了")
+                            } else {
+                                $("#digg_tips").html("您已经反对过了")
+                            }
+
+                            setTimeout(function () {
+                                $("#digg_tips").html("");
+                            }, 1000)
+                        }
+                    }
+                })
+                //如果没登陆
+            } else {
+                $("#digg_tips").html("请先<a href='/login/'>登陆</a>!")
+            }
+
+        });
+        //评论提交
+        $("#comment_submit").click(function () {
+            var content = $("#comment_textarea").val();
+            var article_id = "{{ article.pk }}";
+            //如果点击回复后，又把@username删除，则还是根评论
+            if (content[0] != "@") {
+                pid = "";
+            }
+            //如果评论不是根评论，则去掉@username
+            if (pid) {
+                var index = content.indexOf("\n");
+                content = content.substring(index + 1);
+            }
+            $.ajax({
+                url: "/blog/comment/",
+                type: "post",
+                data: {
+                    content: content,
+                    article_id: article_id,
+                    pid: pid,
+                    csrfmiddlewaretoken: $("[name='csrfmiddlewaretoken").val()
+                },
+                success: function (data) {
+                    console.log(data);
+                    if (data.state) {
+                        $("#msg_submit").addClass("text-success");
+                        $("#msg_submit").html("提交评论成功！");
+                        $("#comment_textarea").val("");
+
+                        //ajax前端显示提交内容
+                        var floor=$('.comment_list .list-group-item').length+1;
+                        var append_html = '<li class="list-group-item"><div class="comment_one"><a>#'+floor+'楼</a>&nbsp;&nbsp;&nbsp;&nbsp;<span>'+data.create_time+'</span>&nbsp;&nbsp;&nbsp;&nbsp;<a href="/blog/'+data.username+'/">'+data.username+'</a></div><div class="blog_comment_body"><p>'+data.content+'</p></div></li>';
+                        $('.comment_list .list-group').append(append_html)
+
+                    } else {
+                        $("#msg_submit").addClass("text-danger");
+                        $("#msg_submit").html(data.msg);
+                    }
+                    //一秒后提示消失
+                    setTimeout(function () {
+                        $("#msg_submit").html("");
+                        //删除class样式
+                        $("#msg_submit").removeClass();
+                    }, 2000)
+                }
+            })
+        });
+        //评论回复
+        $(".reply").click(function () {
+            //取得回复的楼层信息
+            pid = $(this).attr("pid");
+            var username = $(this).attr("username");
+            //评论输入框聚焦
+            $("#comment_textarea").focus();
+            //初始化回复@user
+            $("#comment_textarea").val("@" + username + "\n")
+
+        });
+
+    </script>
+{% endblock %}

@@ -1,0 +1,77 @@
+{% extends "article_base.html" %}
+{% block css %}
+    <link rel="stylesheet" href="/static/css/homesite.css">
+{% endblock %}
+{% block content %}
+    <div class="row">
+        <div class="article_list">
+            {% for article in article_list %}
+                <div class="article_item">
+                    <div class="article_title">
+                        <h4>
+                            <a class="text-dark"
+                               href="/blog/{{ article.user.username }}/articles/{{ article.pk }}/">{{ article.title }}</a>
+                        </h4>
+                    </div>
+                    <div class="article_body">
+                        {{ article.desc }}
+                    </div>
+                    <div class="article_foot row small">
+                        <span class="col-md-6">发布于 {{ article.create_time|date:"Y-m-d" }}</span>
+                        <span class="pull-right"><i class="fa fa-commenting-o"></i>
+                                    <a class="text-dark" href="#">评论数({{ article.comment_count }})</a>
+                        </span>
+                        <span class="pull-right"><i class="fa fa-thumbs-o-up"></i>
+                                    <a class="text-dark" href="#">点赞({{ article.up_count }})</a>&nbsp;&nbsp;&nbsp;&nbsp;
+                        </span>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block head %}
+<nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container-fluid">
+        <div class="nav-mar">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">
+                    <img alt="Brand" src="/static/img/ctbulogo.gif" width="200">
+                </a>
+                {#            <a class="navbar-brand" href="#">CTBU学习论坛</a>#}
+            </div>
+        </div>
+        <div class="nav-rig">
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    <li><a href="/index/">首页 <span class="sr-only">(current)</span></a></li>
+                    <li class="active"><a href="/blog/{{ user.username }}">博客</a></li>
+                    <li><a href="/blog/backend/">管理</a></li>
+                    <li><a href="#">关于</a></li>
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    {% if request.user.username %}
+                        <li><a href="#">{{ request.user.username }}</a></li>
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
+                               aria-haspopup="true"
+                               aria-expanded="false">设置 <span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="#">个人中心</a></li>
+                                <li><a href="#">修改密码</a></li>
+                                <li><a href="/login/">切换用户</a></li>
+                                <li role="separator" class="divider"></li>
+                                <li><a href="/logout/">注销</a></li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li><a href="/login/">登录</a></li>
+                        <li><a href="/reg/">注册</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</nav>
+{% endblock %}

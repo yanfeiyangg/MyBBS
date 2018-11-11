@@ -1,0 +1,36 @@
+{% extends "backend_base.html" %}
+{% block css %}
+    <link rel="stylesheet" href="/static/css/add_article.css">
+{% endblock %}
+{% block content %}
+    <div class="content">
+        <form action="/blog/backend/add_article/" method="post">
+            {% csrf_token %}
+            <div>
+                <h3>添加文章</h3>
+                <p>文章标题：<input type="text" class="form-control" name="title"></p>
+            </div>
+            <div>
+                <p>内容：<textarea class="form-control" name="article_content" id="article_content" cols="30"
+                                rows="10"></textarea></p>
+            </div>
+            <input type="submit" class="btn btn-info" value="提交">
+        </form>
+    </div>
+    <!--富本文编译器-->
+    <script charset="utf-8" src="/static/kindeditor/kindeditor-all.js"></script>
+    <script>
+        KindEditor.ready(function (K) {
+            window.editor = K.create('#article_content', {
+                width: '700px',
+                height: '500px',
+                resizeType: 0,
+                uploadJson: "/upload/",
+                filePostName: "upload_img",
+                extraFileUploadParams: {
+                    csrfmiddlewaretoken: $("[name='csrfmiddlewaretoken']").val()
+                }
+            });
+        });
+    </script>
+{% endblock %}

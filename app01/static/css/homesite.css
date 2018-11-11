@@ -1,0 +1,30 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    margin-top: 80px;
+    width: 94%;
+    margin-left: 50px;
+    margin-right: 50px;
+}
+
+.desc {
+    font-size: 16px;
+}
+
+.text-dark {
+    color: #343a40 !important;
+    font-weight: bold;
+    font-size: 1.5rem;
+}
+
+.panel-body {
+    padding: 15px;
+    margin-top: 10px;
+}
+
+.con-right {
+    padding-right: 70px;
+}

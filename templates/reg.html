@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>注册</title>
+    <link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/fontawesome/css/font-awesome.min.css">
+    <style>
+        .container {
+            margin-top: 100px;
+        }
+
+        #avatar {
+            display: none;
+        }
+
+        .avatar_label {
+            padding-left: 22px;
+        }
+
+        #img_label {
+            border-radius: 100%;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="col-md-4 col-md-offset-4 row">
+        <form action="/reg/" method="post" novalidate>
+            {% csrf_token %}
+            <div class="form-group">
+                <div class="row">
+                    <label class="col-md-4 col-md-offset-4" for="avatar">
+                        <img src="/static/img/default.png" width="100" height="100" id="img_label" alt="">
+                    </label>
+                    <input type="file" id="avatar">
+                    <label class="col-sm-offset-4 col-sm-4 avatar_label"> 点击上传头像</label>
+                </div>
+            </div>
+            {% for item in form %}
+                <div class="form-group">
+                    <label for="id_{{ item.html_name }}">{{ item.label }}</label>
+                    {{ item }}
+                    <span class="help-block pull-right" id="error_{{ item.html_name }}"></span>
+                </div>
+            {% endfor %}
+            <div class="form-group">
+                <div class="input-group col-sm-offset-0 col-sm-12">
+                    <button type="button" class="btn btn-success btn-block" id="btn_submit">注 册</button>
+                </div>
+            </div>
+        <a href="/login/" class="pull-right">已有账号?立即登录</a>
+        </form>
+    </div>
+</div>
+<script src="/static/jquery-3.3.1.js"></script>
+<script src="/static/bootstrap/js/bootstrap.min.js"></script>
+<script>
+    $('#avatar').change(function () {
+        //获得文件对象
+        var files = $(this)[0].files[0];
+        //创建文件读取器
+        reader = new FileReader();
+        //输入文件对象，通过reader.result获得文件绝对路径
+        reader.readAsDataURL(files);
+        //加载路径需要时间，因此在reader加载完后再把图片路径赋给img的src中
+        reader.onload = function () {
+            $('#img_label').attr("src", reader.result);
+        };
+    });
+
+    $('#btn_submit').click(function () {
+        var formdata = new FormData();
+        formdata.append("username", $('#id_username').val());
+        formdata.append("pwd", $('#id_pwd').val());
+        formdata.append("re_pwd", $('#id_re_pwd').val());
+        formdata.append("email", $('#id_email').val());
+        formdata.append("avatar",$('#avatar')[0].files[0]);
+        formdata.append("csrfmiddlewaretoken", $("[name='csrfmiddlewaretoken']").val());
+        $.ajax({
+            url: '/reg/',
+            type: 'post',
+            dataType: 'json',
+            processData: false,
+            contentType: false,
+            data: formdata,
+            success: function (data) {
+                if(data.errors) {
+                    //取消所有错误样式
+                    $("form .form-group").removeClass("has-error");
+                    $("form .help-block").html('');
+                    //更新错误信息
+                    $.each(data.errors, function (name, error) {
+                        if (name == "__all__") {
+                            $("#error_re_pwd").html(error[0]);
+                            $("#id_re_pwd").parent().addClass("has-error");
+                        }
+                        $("#error_" + name).html(error[0]);
+                        $("#id_" + name).parent().addClass("has-error");
+                    })
+                }else {
+                    location.href="/login/";
+                }
+            }
+        })
+    })
+</script>
+</body>
+</html>

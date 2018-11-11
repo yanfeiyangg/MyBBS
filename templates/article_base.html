@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/fontawesome/css/font-awesome.min.css">
+    <script src="/static/js/jquery-3.3.1.js"></script>
+
+    <link rel="stylesheet" href="/static/css/index.css">
+
+    {#    <link rel="stylesheet" href="/static/css/article_detail.css">#}
+
+    {% block css %}
+    {% endblock %}
+
+    {% block js %}
+    {% endblock %}
+
+    {% load my_tags %}
+    <title>{{ user.blog.title }}</title>
+</head>
+<body>
+{#导航栏#}
+{% block head %}
+{% endblock %}
+
+
+<div class="container">
+
+    <div class="col-md-6 col-md-offset-3 con-right">
+        {% block content %}
+        {% endblock %}
+    </div>
+    <div class="col-md-3 panel_list">
+        {% get_menu username %}
+    </div>
+
+</div>
+<script src="/static/bootstrap/js/bootstrap.min.js"></script>
+<script src="/static/js/index.js"></script>
+</body>
+</html>

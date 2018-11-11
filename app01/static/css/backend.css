@@ -1,0 +1,31 @@
+.deleteBtn{
+    margin-left: 20px;
+    text-decoration: none;
+    color: red;
+}
+
+.deleteBtn:hover{
+    text-decoration: none;
+    font-weight: bold;
+    color: red;
+}
+
+.editBtn{
+    text-decoration: none;
+}
+
+.editBtn:hover{
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.fl{
+    float: left;
+}
+.fr{
+    float: right;
+}
+
+.dateSpan{
+    margin-right: 20px;
+}
