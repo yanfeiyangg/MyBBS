@@ -100,19 +100,19 @@
             <div class="col-md-6">
                 <ul class="list-inline">
                     <li class="list-inline-item">
-                        <a href="/" class="text-color">首页</a>
+                        <a href="/index/" class="text-color">首页</a>
                     </li>
                     <li class="list-inline-item">⋅</li>
                     <li class="list-inline-item">
-                        <a href="/post" class="text-color">博客</a>
+                        <a href="/blog/{{ user.username }}" class="text-color">博客</a>
                     </li>
                     <li class="list-inline-item">⋅</li>
                     <li class="list-inline-item">
-                        <a href="/resume" class="text-color">关于</a>
+                        <a href="#" class="text-color">关于</a>
                     </li>
                     <li class="list-inline-item">⋅</li>
                     <li class="list-inline-item">
-                        <a href="http://github.com/JamesZBL/FS-Blog" target="_blank" class="text-color">Github 项目</a>
+                        <a href="http://github.com/yanfeiyangg/MyBBS/" target="_blank" class="text-color">Github 项目</a>
                     </li>
                 </ul>
                 <p class="small ">© JamesZBL 2017-2018 All Rights Reserved. </p>
@@ -121,11 +121,13 @@
             <div class="col-md-6 footer_icon">
                 <ul class="list-inline mb-0">
                     <li class="list-inline-item mr-3">
-                        <a class="text-color" id="aaa">
+                        <a class="text-color" id="github" href="http://github.com/yanfeiyangg/" target="_blank">
                             <i class="fa fa-github fa-2x fa-fw"></i>
                         </a>
                     </li>
                     <li class="list-inline-item mr-3">
+                        <img id="QQCode" width="170" height="170" src="/media/QRcode/QQCode.jpg" alt="QQ二维码" >
+                        <img id="WeChatCode" width="170" height="170" src="/media/QRcode/WeChatCode.jpg" alt="微信二维码" >
                         <a class="text-color" id="id_qq">
                             <i class="fa fa-qq fa-2x fa-fw"></i>
                         </a>
@@ -142,5 +144,6 @@
 </footer>
 <script src="/static/js/jquery-3.3.1.js"></script>
 <script src="/static/bootstrap/js/bootstrap.min.js"></script>
+<script src="/static/js/index.js"></script>
 </body>
 </html>

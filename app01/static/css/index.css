@@ -166,6 +166,21 @@ footer a:hover{
     color: white;
 }
 footer a:focus{
-    color: blue;
+    color: white;
 }
+
+#QQCode{
+    display: none;
+    position: absolute;
+    left: 216px;
+    top: -37px;
+}
+#WeChatCode{
+    display: none;
+    position: absolute;
+    left: 216px;
+    top: -37px;
+}
+
+
 
