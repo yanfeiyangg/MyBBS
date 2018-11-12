@@ -2,7 +2,11 @@
     margin: 0;
     padding: 0;
 }
-
+body{
+    /*出现左右多余部分，不知哪里出了问题，先取消左右滑动条来保证没有多余部分*/
+    overflow:Scroll;
+    overflow-x:hidden;
+}
 .container {
     margin-top: 70px;
     width: 94%;

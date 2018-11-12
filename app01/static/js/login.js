@@ -11,7 +11,7 @@ $('#btn_submit').on('click', function () {
         },
         success: function (data) {
             if (data.state) {
-                location.href = '/index/'
+                location.href = '/'
             } else {
                 $('#error').text(data.msg);
             }
@@ -20,4 +20,4 @@ $('#btn_submit').on('click', function () {
 });
 $('#code11').on('click', function () {
     $(this)[0].src += '?';
-})
+});

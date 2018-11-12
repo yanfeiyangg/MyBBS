@@ -114,14 +114,14 @@ def login(request):
 def logout(request):
     auth.logout(request)
     # request.session.flush()
-    return redirect('/index/')
+    return redirect('/')
 
 
 # 首页
-def index(request,**kwargs):
+def index(request, **kwargs):
     # ************   获取所有标签、分类、日期归档等 *********************
     # 找到博客下的所有分类以及对应的文章数量
-    cate_list = models.Category.objects.all().annotate(count=Count("article")).values_list("title","count")
+    cate_list = models.Category.objects.all().annotate(count=Count("article")).values_list("title", "count")
     # 找到博客下的所有标签以及对应的文章数量
     tag_list = models.Tag.objects.all().annotate(count=Count("article")).values_list("title", "count")
     # 日期归档
@@ -237,10 +237,13 @@ def comment(request):
 
 #  后台管理界面
 def backend(request):
+    # 判断是否登录
+    if not request.user.username:
+        return redirect("/login/")
     # 查询所有文章
     user_id = request.user.pk
     article_list = models.Article.objects.filter(user_id=user_id)
-    return render(request, "backend.html",locals())
+    return render(request, "backend.html", locals())
 
 
 #  后台 ——> 添加文章
@@ -252,11 +255,11 @@ def add_article(request):
         # 获得desc
         from bs4 import BeautifulSoup
         bs = BeautifulSoup(article_content, "html.parser")
-        desc = bs.text[0:150]+"..."
-        user=request.user
+        desc = bs.text[0:150] + "..."
+        user = request.user
         # 内容过滤(去除script、css标签)
         for tag in bs.find_all():
-            if tag.name in ["script","link"]:
+            if tag.name in ["script", "link"]:
                 tag.decompose()
         # 保存至数据库
         article = models.Article.objects.create(user=user, title=title, desc=desc)
@@ -264,39 +267,41 @@ def add_article(request):
         return redirect("/blog/backend/")
     if request.method == "GET":
         user_id = request.user.pk
-        return render(request, "add_article.html",locals())
+        return render(request, "add_article.html", locals())
 
 
 #  后台 ——> 删除文章
-def delete_article(request,article_id):
-    if request.method=="GET":
+def delete_article(request, article_id):
+    if request.method == "GET":
         print(article_id)
-        article=models.Article.objects.filter(pk=article_id).first()
+        article = models.Article.objects.filter(pk=article_id).first()
         print(article)
         if article:
             article.delete()
             # # article.delete()
-            return JsonResponse({"status":"0"})
+            return JsonResponse({"status": "0"})
         else:
-            return JsonResponse({"status":"1"})
+            return JsonResponse({"status": "1"})
+
 
 #  后台 ——> 编辑文章
-def edit_article(request,article_id):
-    if request.method=="GET":
-        article = models.Article.objects.filter(pk=article_id).values_list("title","articledetail__content")
-        data={"title":article[0][0],"content":article[0][1]}
-        return render(request,"edit_article.html",locals())
-    if request.method=="POST":
+def edit_article(request, article_id):
+    if request.method == "GET":
+        article = models.Article.objects.filter(pk=article_id).values_list("title", "articledetail__content")
+        data = {"title": article[0][0], "content": article[0][1]}
+        return render(request, "edit_article.html", locals())
+    if request.method == "POST":
         # 获取表单信息
         title = request.POST.get("title")
         article_content = request.POST.get("article_content")
         username = request.user.username
         # 修改文章内容
-        article = models.Article.objects.filter(pk=article_id) #获取文章对象
+        article = models.Article.objects.filter(pk=article_id)  # 获取文章对象
         articleDetail = models.ArticleDetail.objects.filter(pk=article_id)
         articleDetail.update(content=article_content)
         article.update(title=title)
-        return redirect("/blog/"+username+"/articles/"+article_id)
+        return redirect("/blog/" + username + "/articles/" + article_id)
+
 
 # 富文本编译器，上传图片并显示
 def upload(request):
@@ -317,4 +322,3 @@ def upload(request):
         "url": url
     }
     return JsonResponse(res)
-

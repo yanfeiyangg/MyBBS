@@ -1,4 +1,5 @@
 {% extends "backend_base.html" %}
+<!-- head -->
 {% block head %}
     <nav class="navbar navbar-default navbar-fixed-top">
         <div class="container-fluid">
@@ -13,7 +14,7 @@
             <div class="nav-rig">
                 <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                     <ul class="nav navbar-nav">
-                        <li><a href="/index/">首页 <span class="sr-only"></span></a></li>
+                        <li><a href="/">首页 <span class="sr-only"></span></a></li>
                         <li><a href="/blog/{{ user.username }}">博客</a></li>
                         <li class="active"><a href="/blog/backend/">管理</a></li>
                         <li><a href="#">关于</a></li>
@@ -43,10 +44,12 @@
         </div>
     </nav>
 {% endblock %}
+<!-- css -->
 {% block css %}
     <link rel="stylesheet" href="/static/sweetalert/sweetalert.css">
     <link rel="stylesheet" href="/static/css/backend.css">
 {% endblock %}
+<!-- content -->
 {% block content %}
     <div class="row">
         <div class="col-md-10 col-md-offset-1">
@@ -81,6 +84,7 @@
         </div>
     </div>
 {% endblock %}
+<!-- js -->
 {% block js %}
     <script src="/static/sweetalert/sweetalert.min.js"></script>
     <script src="/static/js/backend.js"></script>
