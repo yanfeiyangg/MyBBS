@@ -297,7 +297,7 @@ def edit_article(request, article_id):
         username = request.user.username
         # 修改文章内容
         article = models.Article.objects.filter(pk=article_id)  # 获取文章对象
-        articleDetail = models.ArticleDetail.objects.filter(pk=article_id)
+        articleDetail = models.ArticleDetail.objects.filter(article_id=article_id)
         articleDetail.update(content=article_content)
         article.update(title=title)
         return redirect("/blog/" + username + "/articles/" + article_id)

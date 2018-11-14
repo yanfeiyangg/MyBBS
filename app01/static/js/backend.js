@@ -38,15 +38,3 @@ $(".deleteBtn").click(function () {
             }
         });
 });
-
-$(".editBtn").click(function () {
-    var article_id = $(this)[0].getAttribute("article_id");
-    $.ajax({
-        method: "get",
-        url: "edit_article/" + article_id,
-        dataType: "json",
-        success: function (data) {
-            console.log(data);
-        }
-    });
-});
