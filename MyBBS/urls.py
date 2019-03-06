@@ -33,6 +33,7 @@ urlpatterns = [
     # 加入 position 和 parameter ，用于首页筛选所有文章
     url(r'^index/(?P<position>cate|tag|date)/(?P<parameter>[\w\W]+)/', views.index),
     url(r'^$', views.index),
+    url(r'^index/$', views.index),
 
     #上传图片
     url(r'^upload/',views.upload),

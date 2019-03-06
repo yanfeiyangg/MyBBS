@@ -52,7 +52,7 @@
 <!-- content -->
 {% block content %}
     <div class="row">
-        <div class="col-md-10 col-md-offset-1">
+        <div class="col-md-6 col-md-offset-3">
             <div class="content">
                 <a class="btn btn-info" href="/blog/backend/add_article/">添加文章</a>
             </div>
@@ -81,6 +81,7 @@
                     </div>
                 {% endfor %}
             </div>
+        {{ page.show }}
         </div>
     </div>
 {% endblock %}

@@ -15,6 +15,8 @@ from app01 import models
 from app01 import forms
 # 时间函数
 import datetime
+# 分页
+from app01.utils.pagination import Pagination
 
 
 # 注册
@@ -28,7 +30,6 @@ def reg(request):
             pwd = form.cleaned_data.get('pwd')
             email = form.cleaned_data.get('email')
             avatar = request.FILES.get('avatar')
-            print(avatar)
             # avtar的名字不能为中文名
             models.UserInfo.objects.create_user(username=username, password=pwd, email=email, avatar=avatar)
             return JsonResponse(res)
@@ -133,9 +134,8 @@ def index(request, **kwargs):
     # 获取筛选内容
     pos = kwargs.get('position', None)
     parameter = kwargs.get('parameter', None)
-    print(pos)
-    print(parameter)
     # 获得文章
+    article_list = models.Article.objects.all()
     if not pos:
         article_list = models.Article.objects.all()
     elif pos == 'cate':
@@ -147,6 +147,8 @@ def index(request, **kwargs):
         print(year, month)
         article_list = models.Article.objects.all().filter(create_time__year=year)
         # article_list = models.Article.objects.filter(user=user).filter(tags__title=parameter)
+    page = Pagination(request, article_list.count())
+    article_list = article_list[page.start:page.end]
     return render(request, "index.html", locals())
 
 
@@ -243,14 +245,24 @@ def backend(request):
     # 查询所有文章
     user_id = request.user.pk
     article_list = models.Article.objects.filter(user_id=user_id)
+    page = Pagination(request, article_list.count())
+    article_list = article_list[page.start:page.end]
     return render(request, "backend.html", locals())
 
 
 #  后台 ——> 添加文章
 def add_article(request):
+    if request.method == "GET":
+        user_id = request.user.pk
+        cate_list = models.Category.objects.all()
+        tag_list = models.Tag.objects.filter(blog__userinfo__nid=user_id)
+        return render(request, "add_article.html", locals())
     if request.method == "POST":
         # 获取文章信息
         title = request.POST.get("title")
+        cate = request.POST.get("choice_cate")
+        cate = cate if cate != -1 else None
+        tag_lst = request.POST.getlist("choice_tag")
         article_content = request.POST.get("article_content")
         # 获得desc
         from bs4 import BeautifulSoup
@@ -262,12 +274,14 @@ def add_article(request):
             if tag.name in ["script", "link"]:
                 tag.decompose()
         # 保存至数据库
-        article = models.Article.objects.create(user=user, title=title, desc=desc)
-        models.ArticleDetail.objects.create(content=str(bs), article=article)
+        article = models.Article.objects.create(user=user, title=title, desc=desc, category_id=cate)
+        models.ArticleDetail.objects.create(article=article, content=str(bs))
+        if len(tag_lst) > 0:
+            tag_obj_list = models.Tag.objects.filter(nid__in=tag_lst)
+            # 有多个标签，循环依次添加标签
+            for i in tag_obj_list:
+                models.Article2Tag.objects.create(article=article, tag=i)
         return redirect("/blog/backend/")
-    if request.method == "GET":
-        user_id = request.user.pk
-        return render(request, "add_article.html", locals())
 
 
 #  后台 ——> 删除文章
@@ -287,19 +301,50 @@ def delete_article(request, article_id):
 #  后台 ——> 编辑文章
 def edit_article(request, article_id):
     if request.method == "GET":
-        article = models.Article.objects.filter(pk=article_id).values_list("title", "articledetail__content")
-        data = {"title": article[0][0], "content": article[0][1]}
+        # 文章的 标题、文章详细内容、分类id
+        article = models.Article.objects.filter(pk=article_id).values_list("title", "articledetail__content",
+                                                                           "category__nid")
+        # 该文章的标签
+        tag_choice_list = [i[0] for i in
+                           models.Article2Tag.objects.filter(article_id=article_id).values_list("tag__nid")]
+        # 所有分类
+        cate_list = models.Category.objects.all()
+        # 所有标签
+        tag_list = models.Tag.objects.filter(blog__userinfo__nid=request.user.pk)
+        data = {
+            "title": article[0][0],
+            "content": article[0][1],
+            "category": article[0][2],
+        }
         return render(request, "edit_article.html", locals())
     if request.method == "POST":
         # 获取表单信息
         title = request.POST.get("title")
         article_content = request.POST.get("article_content")
+        cate = request.POST.get("choice_cate")
+        cate = cate if cate != -1 else None
+        tag_lst = request.POST.getlist("choice_tag")
         username = request.user.username
-        # 修改文章内容
-        article = models.Article.objects.filter(pk=article_id)  # 获取文章对象
-        articleDetail = models.ArticleDetail.objects.filter(article_id=article_id)
-        articleDetail.update(content=article_content)
-        article.update(title=title)
+        # 获得desc
+        from bs4 import BeautifulSoup
+        bs = BeautifulSoup(article_content, "html.parser")
+        desc = bs.text[0:150] + "..."
+        user = request.user
+        # 内容过滤(去除script、css标签)
+        for tag in bs.find_all():
+            if tag.name in ["script", "link"]:
+                tag.decompose()
+        # 获取文章对象
+        article = models.Article.objects.filter(pk=article_id)
+        # 更改文章内容
+        article.update(title=title, desc=desc, category_id=cate)
+        # 更改文章详细内容
+        articleDetail = models.ArticleDetail.objects.filter(article_id=article_id).update(content=str(bs))
+        # 先删除原标签，添加新标签
+        for i in models.Article2Tag.objects.filter(article_id=article_id):
+            i.delete()
+        for i in tag_lst:
+            models.Article2Tag.objects.create(article_id=article_id, tag_id=i)
         return redirect("/blog/" + username + "/articles/" + article_id)
 
 

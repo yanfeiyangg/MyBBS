@@ -5,26 +5,61 @@
 {% endblock %}
 <!-- block content-->
 {% block content %}
-    <div class="content">
-        <form action="/blog/backend/edit_article/{{ article_id }}" method="post">
-            {% csrf_token %}
-            <div>
-                <h3>编辑文章</h3>
-                <p>文章标题：<input type="text" class="form-control" name="title" value="{{ data.title }}"></p>
-            </div>
-            <div>
-                <p>内容：<textarea class="form-control" name="article_content" id="article_content" cols="30"
-                                rows="10" >{{ data.content }}</textarea></p>
-            </div>
-            <input type="submit" class="btn btn-info" value="提交">
-        </form>
+    <div class="col-md-8 col-md-offset-2">
+        <div class="content">
+            <form action="/blog/backend/edit_article/{{ article_id }}" method="post" style="width: 400px;">
+                {% csrf_token %}
+                <h2>编辑文章</h2>
+                <div class="form-group">
+                    <label for="inputTitle">标题：</label>
+                    <input type="text" class="form-control" name="title" id="inputTitle" value="{{ data.title }}"
+                           required>
+                </div>
+                <div class="form-group">
+                    <label>分类：</label>
+                    <select name="choice_cate" id="inputCate" class="form-control">
+                        <option value="-1">请选择分类</option>
+                        {% for cate in cate_list %}
+                            {% if cate.pk == data.category %}
+                                <option value="{{ cate.pk }}" selected>{{ cate.title }}</option>
+                            {% else %}
+                                <option value="{{ cate.pk }}">{{ cate.title }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="inputCate">标签：</label>
+                    <div>
+                        {% for tag in tag_list %}
+                            {% if tag.pk in tag_choice_list %}
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" value="{{ tag.pk }}" name="choice_tag"
+                                           checked> {{ tag.title }}
+                                </label>
+                            {% else %}
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" value="{{ tag.pk }}" name="choice_tag"> {{ tag.title }}
+                                </label>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="article_content">内容：</label>
+                    <textarea class="form-control" name="article_content" id="article_content" cols="30"
+                              rows="10">{{ data.content }}</textarea>
+                </div>
+                <input type="submit" class="btn btn-info" value="提交">
+            </form>
+        </div>
     </div>
     <!--富本文编译器-->
     <script charset="utf-8" src="/static/kindeditor/kindeditor-all.js"></script>
     <script>
         KindEditor.ready(function (K) {
             window.editor = K.create('#article_content', {
-                width: '700px',
+                width: '900px',
                 height: '500px',
                 resizeType: 0,
                 uploadJson: "/upload/",
