@@ -26,8 +26,12 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*', ]
 
-# Application definition
+import configparser
 
+# 读config.ini文件
+conf = configparser.ConfigParser()
+conf.read(os.path.join(BASE_DIR, 'config.ini'))
+# Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -81,11 +85,11 @@ WSGI_APPLICATION = 'MyBBS.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'HOST': '120.78.199.194',
-        'PORT': 3306,
-        'USER': 'yan',
-        'PASSWORD': 'yan123',
-        'NAME': 'bbs',
+        'HOST': conf.get("global", "ip"),
+        'PORT': conf.get("mysql", "port"),
+        'USER': conf.get("mysql", "username"),
+        'PASSWORD': conf.get("mysql", "password"),
+        'NAME': conf.get("mysql", "database"),
     }
 }
 
@@ -143,7 +147,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "app01", "media")
 
 # 配置Redis
 import redis
-POOL = redis.ConnectionPool(host="120.78.199.194", port=6379,decode_responses=True,db=10)
+
+POOL = redis.ConnectionPool(host=conf.get("global", "ip"), port=conf.get("redis", "port"), decode_responses=True,
+                            db=conf.get("redis", "database"))
 REDIS = redis.Redis(connection_pool=POOL)
-
-
