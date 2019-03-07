@@ -1,13 +1,17 @@
 .col-sm-6 {
-    padding: 0 10px;
-    padding-left: 0px;
+    padding: 0 0px;
 }
 
 body {
-    background-color: #eee;
+    background-color: white;
+    padding: 0;
+    margin: 0;
     /*background-image: url("/static/img/4.jpg");*/
 }
 
 .pull-right {
     margin-top: 10px;
+}
+.form-group{
+    margin-bottom: 15px;
 }

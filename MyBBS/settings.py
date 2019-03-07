@@ -24,7 +24,7 @@ SECRET_KEY = 'hv@8!=s16wz23)i@4b8!gol_l=#w2wv5d#ex9d76zdid5zx4r0'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*',]
+ALLOWED_HOSTS = ['*', ]
 
 # Application definition
 
@@ -118,7 +118,7 @@ USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = True
+USE_TZ = False
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
@@ -140,3 +140,10 @@ AUTH_USER_MODEL = 'app01.UserInfo'
 MEDIA_URL = '/media/'
 
 MEDIA_ROOT = os.path.join(BASE_DIR, "app01", "media")
+
+# 配置Redis
+import redis
+POOL = redis.ConnectionPool(host="120.78.199.194", port=6379,decode_responses=True,db=10)
+REDIS = redis.Redis(connection_pool=POOL)
+
+

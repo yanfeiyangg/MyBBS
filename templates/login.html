@@ -12,41 +12,46 @@
 <body>
 <div class="container">
     <div class="row">
-        <div class="col-md-4 col-md-offset-4" style="margin-top: 100px">
-            <h1 class="text-center">登陆</h1>
+        <div class="col-md-6 col-md-offset-4" style="margin-top: 195px;">
             <form class="form-horizontal" method="post" action="/login/">
                 {% csrf_token %}
                 <div class="form-group">
-                    <label for="username" class="col-sm-2 control-label"></label>
+                <div class="row">
+                    <label for="avatar" class="col-md-8 col-md-offset-3">
+                        <img src="/static/img/default.png" width="100" height="100" id="img_label" alt="">
+                    </label>
+                </div>
+            </div>
+                <div class="form-group">
                     <div class="input-group col-sm-8">
-                        <span class="input-group-addon"><i class="fa fa-envelope-o fa-fw"></i></span>
-                        <input type="text" class="form-control" name="username" id="username" placeholder="Username">
+                        <label for="username">用户名</label>
+                        <input type="text" class="form-control" name="username"
+                               id="username" placeholder="请输入用户名">
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="pwd" class="col-sm-2 control-label"></label>
                     <div class="input-group col-sm-8">
-                        <span class="input-group-addon"><i class="fa fa-key fa-fw"></i></span>
+                        <label for="pwd">密码</label>
                         <input type="password" class="form-control" name="pwd" id="pwd"
-                               placeholder="Password">
+                               placeholder="至少八位，必须包括字母、数字、特殊字符">
                     </div>
                 </div>
                 <div class="form-group" style="height: 10px">
-                    <label for="pwd" class="col-sm-2 control-label"></label>
-                    <div class="col-sm-8 form-group">
-                        <div class="col-sm-6">
-                            <input type="text" class="form-control" id="code">
+                    <div class="col-sm-10 form-group">
+                        <div class="col-sm-6" style="margin-right: 20px; ">
+                            <label for="pwd">验证码</label>
+                            <input type="text" class="form-control" id="code" placeholder="请输入右侧显示的验证码">
                         </div>
-                        <div class="col-sm-6">
+                        <div style="margin-top: 25px">
                             <img id="code11" src="/get_vaild_img" width="140" height=32" alt="验证码" title="点击刷新验证码">
                         </div>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <div class="input-group col-sm-offset-2 col-sm-8">
-                        <button type="button" class="btn btn-primary btn-block" id="btn_submit">登录</button>
-                        <a class="pull-right" href="/reg/" style="color: white!important;">没有账号?立即注册</a>
+                    <div class="input-group col-sm-8">
+                        <button type="button" class="btn btn-success btn-block" id="btn_submit">登录</button>
+                        <a class="pull-right" href="/reg/" style="color:#5bc0de!important;">没有账号?立即注册</a>
                     </div>
                 </div>
                 <p class="text-center text-danger" id="error"></p>

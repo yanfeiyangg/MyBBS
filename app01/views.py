@@ -3,6 +3,8 @@ from django.http import JsonResponse
 from django.db.models import F
 from django.db.models import Avg, Count
 import json
+# 事务
+from django.db import transaction
 # 画图库
 from PIL import Image, ImageDraw, ImageFont
 from io import BytesIO
@@ -17,6 +19,35 @@ from app01 import forms
 import datetime
 # 分页
 from app01.utils.pagination import Pagination
+# redis
+from MyBBS.settings import REDIS
+
+
+# 浏览量对象
+class ViewObj:
+    # 对“新文章”初始化浏览数为0
+    def initView(self, article_id):
+        s = "visit:%s:totals" % article_id
+        REDIS.set(s, 0)
+
+    # 浏览数 + 1
+    def addView(self, article_id):
+        s = "visit:%s:totals" % article_id
+        REDIS.incr(s)
+
+    # 删除文章的同时，删除点击数
+    def delView(self, article_id):
+        s = "visit:%s:totals" % article_id
+        REDIS.delete(s)
+
+    # 获取文章点击数
+    def getView(self, article_id):
+        s = "visit:%s:totals" % article_id
+        return REDIS.get(s)
+
+
+# 全局注册 浏览量对象
+v = ViewObj()
 
 
 # 注册
@@ -144,9 +175,15 @@ def index(request, **kwargs):
         article_list = models.Article.objects.all().filter(tags__title=parameter)
     elif pos == 'date':
         year, month = parameter.split('-')
-        print(year, month)
-        article_list = models.Article.objects.all().filter(create_time__year=year)
-        # article_list = models.Article.objects.filter(user=user).filter(tags__title=parameter)
+        dayMax = 30
+        months = [1, 3, 5, 7, 8, 10, 12]
+        if int(month) in months:
+            dayMax = 31
+        # article_list = models.Article.objects.filter(user=user).filter(create_time__year=year)
+        article_list = models.Article.objects.all().filter(
+            create_time__range=(datetime.date(int(year), int(month), 1),
+                                datetime.date(int(year), int(month), dayMax)
+                                ))
     page = Pagination(request, article_list.count())
     article_list = article_list[page.start:page.end]
     return render(request, "index.html", locals())
@@ -161,6 +198,7 @@ def homesite(request, **kwargs):
     pos = kwargs.get('position', None)
     parameter = kwargs.get('parameter', None)
     # 获得文章
+    article_list = models.Article.objects.filter(user=user)
     if not pos:
         article_list = models.Article.objects.filter(user=user)
     elif pos == 'cate':
@@ -169,20 +207,34 @@ def homesite(request, **kwargs):
         article_list = models.Article.objects.filter(user=user).filter(tags__title=parameter)
     elif pos == 'date':
         year, month = parameter.split('-')
-        print(year, month)
-        article_list = models.Article.objects.filter(user=user).filter(create_time__year=year)
-        # article_list = models.Article.objects.filter(user=user).filter(tags__title=parameter)
+        dayMax = 30
+        months = [1, 3, 5, 7, 8, 10, 12]
+        if int(month) in months:
+            dayMax = 31
+        # article_list = models.Article.objects.filter(user=user).filter(create_time__year=year)
+        article_list = models.Article.objects.filter(user=user).filter(
+            create_time__range=(datetime.date(int(year), int(month), 1),
+                                datetime.date(int(year), int(month), dayMax)
+                                ))
+    page = Pagination(request,article_list.count(),per_page_num=4)
+    article_list = article_list[page.start:page.end]
     return render(request, "homesite.html", locals())
 
 
 # 文章详细页
 def article_detail(request, username, article_id):
     # 通过username找到对应的user对象,作为参数传到base.html中
-    user = models.UserInfo.objects.filter(username=username).first()
-
-    article = models.Article.objects.filter(pk=article_id).first()
-    comment_list = models.Comment.objects.filter(article_id=article_id)
-    return render(request, "article_detail.html", locals())
+    if request.method == "GET":
+        if not v.getView(article_id):
+            v.initView(article_id)
+        # 点击数 +1
+        v.addView(article_id)
+        click_count = v.getView(article_id)
+        # 获取文章信息
+        user = models.UserInfo.objects.filter(username=username).first()
+        article = models.Article.objects.filter(pk=article_id).first()
+        comment_list = models.Comment.objects.filter(article_id=article_id)
+        return render(request, "article_detail.html", locals())
 
 
 # 点赞
@@ -274,13 +326,19 @@ def add_article(request):
             if tag.name in ["script", "link"]:
                 tag.decompose()
         # 保存至数据库
-        article = models.Article.objects.create(user=user, title=title, desc=desc, category_id=cate)
-        models.ArticleDetail.objects.create(article=article, content=str(bs))
-        if len(tag_lst) > 0:
-            tag_obj_list = models.Tag.objects.filter(nid__in=tag_lst)
-            # 有多个标签，循环依次添加标签
-            for i in tag_obj_list:
-                models.Article2Tag.objects.create(article=article, tag=i)
+        try:
+            # 把添加文章步骤封装为 事务，保证原子性
+            with transaction.atomic():
+                article = models.Article.objects.create(user=user, title=title, desc=desc, category_id=cate)
+                models.ArticleDetail.objects.create(article=article, content=str(bs))
+                if len(tag_lst) > 0:
+                    tag_obj_list = models.Tag.objects.filter(nid__in=tag_lst)
+                    # 有多个标签，循环依次添加标签
+                    for i in tag_obj_list:
+                        models.Article2Tag.objects.create(article=article, tag=i)
+
+        except Exception:
+            return render(request, "400.html")
         return redirect("/blog/backend/")
 
 
@@ -337,14 +395,19 @@ def edit_article(request, article_id):
         # 获取文章对象
         article = models.Article.objects.filter(pk=article_id)
         # 更改文章内容
-        article.update(title=title, desc=desc, category_id=cate)
-        # 更改文章详细内容
-        articleDetail = models.ArticleDetail.objects.filter(article_id=article_id).update(content=str(bs))
-        # 先删除原标签，添加新标签
-        for i in models.Article2Tag.objects.filter(article_id=article_id):
-            i.delete()
-        for i in tag_lst:
-            models.Article2Tag.objects.create(article_id=article_id, tag_id=i)
+        try:
+            # 封装成事务，保证原子性
+            with transaction.atomic():
+                article.update(title=title, desc=desc, category_id=cate)
+                # 更改文章详细内容
+                articleDetail = models.ArticleDetail.objects.filter(article_id=article_id).update(content=str(bs))
+                # 先删除原标签，添加新标签
+                for i in models.Article2Tag.objects.filter(article_id=article_id):
+                    i.delete()
+                for i in tag_lst:
+                    models.Article2Tag.objects.create(article_id=article_id, tag_id=i)
+        except Exception:
+            return render(request, "400.html")
         return redirect("/blog/" + username + "/articles/" + article_id)
 
 

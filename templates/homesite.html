@@ -1,4 +1,5 @@
 {% extends "article_base.html" %}
+{% load my_tags %}
 {% block css %}
     <link rel="stylesheet" href="/static/css/homesite.css">
 {% endblock %}
@@ -19,15 +20,19 @@
                     <div class="article_foot row small">
                         <span class="col-md-6">发布于 {{ article.create_time|date:"Y-m-d" }}</span>
                         <span class="pull-right"><i class="fa fa-commenting-o"></i>
-                                    <a class="text-dark" href="#">评论数({{ article.comment_count }})</a>
+                                    <span class="text-dark" href="#">评论数({{ article.comment_count }})</span>
                         </span>
                         <span class="pull-right"><i class="fa fa-thumbs-o-up"></i>
-                                    <a class="text-dark" href="#">点赞({{ article.up_count }})</a>&nbsp;&nbsp;&nbsp;&nbsp;
+                                    <span class="text-dark" href="#">点赞({{ article.up_count }})</span>&nbsp;&nbsp;&nbsp;&nbsp;
+                        </span>
+                        <span class="pull-right" style="margin-right: 20px"><i class="fa fa-eye"></i>
+                                    <span class="text-dark" href="#">浏览量({{ article.pk|getView|default_if_none:"0" }})</span>
                         </span>
                     </div>
                 </div>
             {% endfor %}
         </div>
+    {{ page.show }}
     </div>
 {% endblock %}
 

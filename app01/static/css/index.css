@@ -145,7 +145,7 @@ img {
 }
 
 .footer_body{
-    height: 200px;
+    height: 100px;
     background-color:rgb(155,155,160);
 }
 
@@ -177,13 +177,13 @@ footer a:focus{
     display: none;
     position: absolute;
     left: 216px;
-    top: -37px;
+    top: -125px;
 }
 #WeChatCode{
     display: none;
     position: absolute;
     left: 216px;
-    top: -37px;
+    top: -125px;
 }
 
 

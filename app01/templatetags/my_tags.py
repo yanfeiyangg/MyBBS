@@ -1,7 +1,7 @@
 from django import template
 from app01 import models
 from django.db.models import Avg, Count
-
+from MyBBS.settings import REDIS
 register = template.Library()
 
 
@@ -21,3 +21,9 @@ def get_menu(username):
         select={"create_ym": "DATE_FORMAT(create_time,'%%Y-%%m')"}).values("create_ym").annotate(
         count=Count("*")).values_list("create_ym", "count")
     return locals()
+
+
+@register.filter
+def getView(article_id):
+    s = "visit:%s:totals" % article_id
+    return REDIS.get(s)
