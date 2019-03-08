@@ -31,9 +31,17 @@ class ViewObj:
         REDIS.set(s, 0)
 
     # 浏览数 + 1
-    def addView(self, article_id):
-        s = "visit:%s:totals" % article_id
-        REDIS.incr(s)
+    def addView(self, request, article_id):
+        # 获取IP
+        ip = get_ip(request)
+        # 判断是否存在访问锁
+        lock = self.getViewLock(article_id, ip)
+        if not lock:
+            s = "visit:%s:totals" % article_id
+            # 增加点击量
+            REDIS.incr(s)
+            # 添加访问锁
+            self.addViewLock(article_id, ip)
 
     # 删除文章的同时，删除点击数
     def delView(self, article_id):
@@ -44,6 +52,20 @@ class ViewObj:
     def getView(self, article_id):
         s = "visit:%s:totals" % article_id
         return REDIS.get(s)
+
+    # 添加访问锁，IP在30s内重复访问同一篇文章，只对浏览数+1
+    def addViewLock(self, article_id, ip):
+        # 加锁
+        s = "visit:{0}:lock:{1}".format(article_id, ip)
+        print(s)
+        REDIS.setex(s, 30, 1)
+
+    # 查看是否存在访问锁
+    def getViewLock(self, article_id, ip):
+        # 查询锁
+        s = "visit:{}:lock:{}".format(article_id, ip)
+        lock = REDIS.get(s)
+        return lock
 
 
 # 全局注册 浏览量对象
@@ -216,7 +238,7 @@ def homesite(request, **kwargs):
             create_time__range=(datetime.date(int(year), int(month), 1),
                                 datetime.date(int(year), int(month), dayMax)
                                 ))
-    page = Pagination(request,article_list.count(),per_page_num=4)
+    page = Pagination(request, article_list.count(), per_page_num=4)
     article_list = article_list[page.start:page.end]
     return render(request, "homesite.html", locals())
 
@@ -228,7 +250,7 @@ def article_detail(request, username, article_id):
         if not v.getView(article_id):
             v.initView(article_id)
         # 点击数 +1
-        v.addView(article_id)
+        v.addView(request, article_id)
         click_count = v.getView(article_id)
         # 获取文章信息
         user = models.UserInfo.objects.filter(username=username).first()
@@ -430,3 +452,13 @@ def upload(request):
         "url": url
     }
     return JsonResponse(res)
+
+
+# 获取客户端IP
+def get_ip(request):
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0]  # 所以这里是真实的ip
+    else:
+        ip = request.META.get('REMOTE_ADDR')  # 这里获得代理ip
+    return ip

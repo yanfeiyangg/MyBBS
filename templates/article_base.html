@@ -17,7 +17,13 @@
     {% endblock %}
 
     {% load my_tags %}
-    <title>{{ user.blog.title }}</title>
+
+    <title>
+        {% block title %}
+            {{ user.blog.title }}
+        {% endblock %}
+    </title>
+
 </head>
 <body>
 {#导航栏#}
