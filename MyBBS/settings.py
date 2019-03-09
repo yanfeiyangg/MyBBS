@@ -11,6 +11,9 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 import os
+# djcelery 配置
+import djcelery
+djcelery.setup_loader()
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -40,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'app01.apps.App01Config',
+    'djcelery'
 ]
 
 MIDDLEWARE = [
@@ -151,3 +155,28 @@ import redis
 POOL = redis.ConnectionPool(host=conf.get("global", "ip"), port=conf.get("redis", "port"), decode_responses=True,
                             db=conf.get("redis", "database"))
 REDIS = redis.Redis(connection_pool=POOL)
+
+# 配置邮件
+EMAIL_BACKEND = conf.get("email", "EMAIL_BACKEND")
+EMAIL_HOST = conf.get("email", "EMAIL_HOST")
+EMAIL_PORT = conf.get("email", "EMAIL_PORT")
+EMAIL_HOST_USER = conf.get("email", "EMAIL_HOST_USER")  # 你的 QQ 账号
+EMAIL_HOST_PASSWORD = conf.get("email", "EMAIL_HOST_PASSWORD")
+EMAIL_USE_TLS = False
+EMAIL_USE_SSL = True  # 用465端口就得开启
+EMAIL_FROM = conf.get("email", "EMAIL_FROM")  # 你的 QQ 账号
+DEFAULT_FROM_EMAIL = conf.get("email", "DEFAULT_FROM_EMAIL")  # 默认发件人
+
+# 配置Celery
+# 消息中间件（使用redis），消息代理，用于发布者传递消息给消费者
+BROKER_URL = conf.get("celery","url")
+# 消息结果返回中间件（使用redis），用于存储任务执行结果
+CELERY_RESULT_BACKEND = conf.get("celery","url")
+# 允许的内容类型，
+CELERY_ACCEPT_CONTENT = ['json']
+# 任务的序列化方式
+CELERY_TASK_SERIALIZER = 'json'
+# 任务结果的序列化方式
+CELERY_RESULT_SERIALIZER = 'json'
+# celery时区，定时任务使用
+CELERY_TIMEZONE = 'Asia/Shanghai'

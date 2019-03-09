@@ -22,7 +22,8 @@
             border-radius: 100%;
             overflow: hidden;
         }
-        body{
+
+        body {
             color: black;
         }
     </style>
@@ -42,18 +43,33 @@
                 </div>
             </div>
             {% for item in form %}
-                <div class="form-group">
-                    <label for="id_{{ item.html_name }}">{{ item.label }}</label>
-                    {{ item }}
-                    <span class="help-block pull-right" id="error_{{ item.html_name }}"></span>
-                </div>
+                {% if item.label != "邮箱验证码" %}
+                    <div class="form-group">
+                        <label for="id_{{ item.html_name }}">{{ item.label }}</label>
+                        {{ item }}
+                        <span class="help-block pull-right" id="error_{{ item.html_name }}"></span>
+                    </div>
+                {% endif %}
             {% endfor %}
+
+            <label for="id_{{ form.code.html_name }}">{{ form.code.label }}</label>
+            <div class="row">
+                <div class="col-md-8 form-group" style="margin-bottom: 5px!important;">
+                    {{ form.code }}
+                    <span class="help-block pull-right" id="error_{{ form.code.html_name }}"></span>
+                </div>
+                <div class="col-md-4">
+                    <input type="button" value=" 发送验证码 " class="btn btn-default" id="btn_send">
+                </div>
+            </div>
+
+
             <div class="form-group">
                 <div class="input-group col-sm-offset-0 col-sm-12">
                     <button type="button" class="btn btn-success btn-block" id="btn_submit">注 册</button>
                 </div>
             </div>
-        <a href="/login/" class="pull-right">已有账号?立即登录</a>
+            <a href="/login/" class="pull-right">已有账号?立即登录</a>
         </form>
     </div>
 </div>
@@ -79,7 +95,9 @@
         formdata.append("pwd", $('#id_pwd').val());
         formdata.append("re_pwd", $('#id_re_pwd').val());
         formdata.append("email", $('#id_email').val());
-        formdata.append("avatar",$('#avatar')[0].files[0]);
+        formdata.append("code", $('#id_code').val());
+        formdata.append("avatar", $('#avatar')[0].files[0]);
+        formdata.append("is_send", "0");
         formdata.append("csrfmiddlewaretoken", $("[name='csrfmiddlewaretoken']").val());
         $.ajax({
             url: '/reg/',
@@ -89,11 +107,12 @@
             contentType: false,
             data: formdata,
             success: function (data) {
-                if(data.errors) {
+                if (data.errors) {
                     //取消所有错误样式
                     $("form .form-group").removeClass("has-error");
                     $("form .help-block").html('');
                     //更新错误信息
+
                     $.each(data.errors, function (name, error) {
                         if (name == "__all__") {
                             $("#error_re_pwd").html(error[0]);
@@ -102,12 +121,104 @@
                         $("#error_" + name).html(error[0]);
                         $("#id_" + name).parent().addClass("has-error");
                     })
-                }else {
-                    location.href="/login/";
+                } else {
+                    location.href = "/login/";
                 }
             }
         })
-    })
+    });
+
+    $("#btn_send").click(function () {
+        $email = $('#id_email').val();
+        sendData();
+
+        // 倒计时
+        function startTimer() {
+            $time = 5;
+            $timer = setInterval(function () {
+                $("#btn_send")[0].value = "重新发送(" + $time + "s)";
+                $time -= 1;
+                stopTimer();
+            }, 1000);
+            $("#btn_send").addClass("disabled");
+        }
+
+        // 停止计时器
+        function stopTimer() {
+            if ($time == -1) {
+                clearInterval($timer);
+                $("#btn_send").removeClass("disabled");
+                $("#btn_send")[0].value = " 发送验证码 ";
+            }
+        }
+
+        //ajax发送数据，校验其他字段是否有误，如果其他字段无误，再发送验证邮件
+        function sendData() {
+            var formdata = new FormData();
+            formdata.append("username", $('#id_username').val());
+            formdata.append("pwd", $('#id_pwd').val());
+            formdata.append("re_pwd", $('#id_re_pwd').val());
+            formdata.append("email", $('#id_email').val());
+            formdata.append("code", $('#id_code').val());
+            formdata.append("is_send", "1");
+            formdata.append("avatar", $('#avatar')[0].files[0]);
+            formdata.append("csrfmiddlewaretoken", $("[name='csrfmiddlewaretoken']").val());
+            $.ajax({
+                url: '/reg/',
+                type: 'post',
+                dataType: 'json',
+                processData: false,
+                contentType: false,
+                data: formdata,
+                success: function (data) {
+                    console.log(data);
+                    if (data["is_send"] == "1") {
+                        $("form .form-group").removeClass("has-error");
+                        $("form .help-block").html('');
+                        startTimer();
+                        sendEmail();
+                    }
+                    else if (data.errors) {
+                        //取消所有错误样式
+                        $("form .form-group").removeClass("has-error");
+                        $("form .help-block").html('');
+                        //更新错误信息
+                        $.each(data.errors, function (name, error) {
+                            if (name == "__all__") {
+                                $("#error_re_pwd").html(error[0]);
+                                $("#id_re_pwd").parent().addClass("has-error");
+                            }
+                            if (name != "code" ) {
+                                $("#error_" + name).html(error[0]);
+                                $("#id_" + name).parent().addClass("has-error");
+                            }
+                        })
+                    }
+                }
+            })
+        }
+
+        function sendEmail() {
+            var formdata = new FormData();
+            formdata.append("username", $('#id_username').val());
+            formdata.append("email", $('#id_email').val());
+            formdata.append("csrfmiddlewaretoken", $("[name='csrfmiddlewaretoken']").val());
+            $.ajax({
+                url: '/send_codes/',
+                type: 'post',
+                dataType: 'json',
+                processData: false,
+                contentType: false,
+                data: formdata,
+                success:function (data) {
+                    console.log(data);
+                }
+            })
+
+        }
+    });
+
+
 </script>
 </body>
 </html>

@@ -21,6 +21,8 @@ import datetime
 from app01.utils.pagination import Pagination
 # redis
 from MyBBS.settings import REDIS
+# celery
+from .tasks import send_email
 
 
 # 浏览量对象
@@ -57,8 +59,7 @@ class ViewObj:
     def addViewLock(self, article_id, ip):
         # 加锁
         s = "visit:{0}:lock:{1}".format(article_id, ip)
-        print(s)
-        REDIS.setex(s, 30, 1)
+        REDIS.setex(s, 1, 30)
 
     # 查看是否存在访问锁
     def getViewLock(self, article_id, ip):
@@ -77,23 +78,55 @@ def reg(request):
     if request.is_ajax():
         # 获取表单对象信息
         form = forms.regForm(request.POST)
-        res = {"user": None, "errors": None}
-        if form.is_valid():
+        res = {"user": None, "errors": None, "is_send": 0}
+        if form.is_valid() and request.POST.get("is_send") == "0":
             username = form.cleaned_data.get('username')
             pwd = form.cleaned_data.get('pwd')
             email = form.cleaned_data.get('email')
             avatar = request.FILES.get('avatar')
             # avtar的名字不能为中文名
-            models.UserInfo.objects.create_user(username=username, password=pwd, email=email, avatar=avatar)
+            blog = models.Blog.objects.create(title=username, site=username, theme=username + ".css")
+            models.UserInfo.objects.create_user(blog=blog, username=username, password=pwd, email=email, avatar=avatar)
             return JsonResponse(res)
         else:
-            print(form.cleaned_data)
             # 错误的数据
             res["errors"] = form.errors
+            err_len = len(form.errors)  # 错误字段的数量
+            if err_len == 0 or (err_len == 1 and form.errors.get("code")):
+                res["is_send"] = 1
             return JsonResponse(res)
     if request.method == 'GET':
         form = forms.regForm()
         return render(request, 'reg.html', {"form": form})
+
+
+# 发送邮箱验证码
+def sendVaildEmail(request):
+    if request.method == "POST":
+        data = {"statue": 0}
+        try:
+            email = request.POST.get("email")
+            username = request.POST.get("username")
+            key = "register:{0}:{1}".format(username, email)
+            print(key)
+            # 生成六位验证码
+            codes = ""
+            for i in range(6):
+                low_letter = chr(random.randint(97, 122))
+                up_letter = chr(random.randint(65, 90))
+                digit = str(random.randint(0, 9))
+                code = random.choice([low_letter, up_letter, digit])
+                codes += code
+            print("生成验证码：", codes)
+            msg = "亲爱的 {0},您好。您的注册验证码为：{1}".format(username, codes)
+            # 通过celery异步发送邮件
+            send_email.delay("MyBBS - 注册验证码", msg, email)
+            # 把验证码加入缓存
+            REDIS.setex(key, codes, 300)
+        except Exception:
+            data["statue"] = 1
+
+        return JsonResponse(data)
 
 
 # 获得验证码
@@ -123,8 +156,10 @@ def get_vaild_img(request):
     f = BytesIO()
     img.save(f, 'png')
     img = f.getvalue()
-    # 把验证码信息存入session
-    request.session['codes'] = codes
+    # 把验证码和IP信息绑定后存入Redis
+    ip = get_ip(request)
+    key = "login:{0}".format(ip)
+    REDIS.setex(key,codes,30) # 30s过期时间
     # 返回图片
     return HttpResponse(img)
 
@@ -136,7 +171,9 @@ def login(request):
         # 返回信息
         data = {"state": False, "msg": None}
         # 获得正确验证码
-        codes_values = request.session.get('codes', None)
+        ip = get_ip(request)
+        key = "login:{0}".format(ip)
+        codes_values = REDIS.get(key)
         print("正确的验证码：", codes_values)
         # 获得POST信息
         username = request.POST.get('username', None)
@@ -144,8 +181,12 @@ def login(request):
         code = request.POST.get('code', None)
         print("input:", code)
         # 验证码 校验
+        if not codes_values:
+            data["msg"] = "验证码已失效,请点击图片重新获得验证码"
+            return JsonResponse(data)
         if codes_values.upper() == code.upper():
             user = auth.authenticate(username=username, password=pwd)
+            REDIS.delete(key)
             if user:
                 # 修改state
                 data["state"] = True

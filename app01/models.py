@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
+
 class UserInfo(AbstractUser):
     """
     用户信息
@@ -9,7 +10,7 @@ class UserInfo(AbstractUser):
     telephone = models.CharField(max_length=11, null=True, unique=True)
     avatar = models.FileField(upload_to='avatars/', default="/avatars/default.png")
     create_time = models.DateTimeField(verbose_name='创建时间', auto_now_add=True)
-    #博客信息，一对一
+    # 博客信息，一对一
     blog = models.OneToOneField(to='Blog', to_field='nid', null=True)
 
     def __str__(self):
@@ -61,12 +62,12 @@ class Article(models.Model):
     nid = models.AutoField(primary_key=True)
     title = models.CharField(max_length=50, verbose_name='文章标题')
     desc = models.CharField(max_length=255, verbose_name='文章描述')
-    create_time = models.DateTimeField(verbose_name='创建时间',auto_now_add=True)
-    #点赞信息
-    comment_count=models.IntegerField(default=0)
-    up_count=models.IntegerField(default=0)
-    down_count=models.IntegerField(default=0)
-    #外键字段
+    create_time = models.DateTimeField(verbose_name='创建时间', auto_now_add=True)
+    # 点赞信息
+    comment_count = models.IntegerField(default=0)
+    up_count = models.IntegerField(default=0)
+    down_count = models.IntegerField(default=0)
+    # 外键字段
     category = models.ForeignKey(to='Category', to_field='nid', null=True)
     user = models.ForeignKey(verbose_name='作者', to='UserInfo', to_field='nid')
     tags = models.ManyToManyField(
@@ -122,11 +123,11 @@ class ArticleUpDown(models.Model):
         ]
 
     def __str__(self):
-        if self.is_up==True:
-            is_up='推荐'
+        if self.is_up == True:
+            is_up = '推荐'
         else:
             is_up = '反对'
-        return "{}-{}-{}".format(self.user.username,is_up,self.article.title)
+        return "{}-{}-{}".format(self.user.username, is_up, self.article.title)
 
 
 class Comment(models.Model):

@@ -13,17 +13,17 @@ Including another URLconf
     1. Import the include() function: from django.conf.urls import url, include
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
-from django.conf.urls import url,include
+from django.conf.urls import url, include
 from django.contrib import admin
 from MyBBS import settings
 from django.views.static import serve
 from app01 import views
 
 urlpatterns = [
-    #配置admin
+    # 配置admin
     url(r'^admin/', admin.site.urls),
-    #配置media，存放用户的下载文件
-    url(r'^media/(?P<path>.*)$', serve,{"document_root":settings.MEDIA_ROOT}),
+    # 配置media，存放用户的下载文件
+    url(r'^media/(?P<path>.*)$', serve, {"document_root": settings.MEDIA_ROOT}),
     #
 
     url(r'^login/', views.login),
@@ -35,8 +35,11 @@ urlpatterns = [
     url(r'^$', views.index),
     url(r'^index/$', views.index),
 
-    #上传图片
-    url(r'^upload/',views.upload),
-    #app01
-    url(r'^blog/',include("app01.urls"))
+    # 上传图片
+    url(r'^upload/', views.upload),
+
+    # 发送验证码到邮箱
+    url(r'^send_codes/', views.sendVaildEmail),
+    # app01
+    url(r'^blog/', include("app01.urls"))
 ]
