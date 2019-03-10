@@ -23,4 +23,5 @@ urlpatterns = [
     url(r'(?P<username>\w+)/(?P<position>cate|tag|date)/(?P<parameter>[\w\W]+)/$', views.homesite),
     # 个人主页首页
     url(r'(?P<username>\w+)/$', views.homesite),
+
 ]

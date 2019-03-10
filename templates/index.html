@@ -91,7 +91,7 @@
                         </div>
                     {% endfor %}
                 </div>
-            {{ page.show }}
+                {{ page.show }}
             </div>
             <div class="col-md-4 panel_list">
                 <div class="menu">
@@ -99,7 +99,8 @@
                         <div class="panel-heading">分类归档</div>
                         <div class="panel-body">
                             {% for cate in cate_list %}
-                                <a href="/index/cate/{{ cate.0 }}/">{{ cate.0 }}<span class="label label-default panel_num">{{ cate.1 }}</span></a>
+                                <a href="/index/cate/{{ cate.0 }}/">{{ cate.0 }}<span
+                                        class="label label-default panel_num">{{ cate.1 }}</span></a>
                             {% endfor %}
                         </div>
                     </div>
@@ -107,7 +108,8 @@
                         <div class="panel-heading">标签归档</div>
                         <div class="panel-body">
                             {% for tag in tag_list %}
-                                <a href="/index/tag/{{ tag.0 }}/">{{ tag.0 }}<span class="label label-default panel_num">{{ tag.1 }}</span></a>
+                                <a href="/index/tag/{{ tag.0 }}/">{{ tag.0 }}<span
+                                        class="label label-default panel_num">{{ tag.1 }}</span></a>
                             {% endfor %}
 
                         </div>
@@ -116,7 +118,8 @@
                         <div class="panel-heading">日期归档</div>
                         <div class="panel-body">
                             {% for date in date_list %}
-                                <a href="/index/date/{{ date.0 }}">{{ date.0 }}<span class="label label-default panel_num">{{ date.1 }}</span></a>
+                                <a href="/index/date/{{ date.0 }}">{{ date.0 }}<span
+                                        class="label label-default panel_num">{{ date.1 }}</span></a>
                             {% endfor %}
                         </div>
                     </div>
@@ -156,8 +159,8 @@
                         </a>
                     </li>
                     <li class="list-inline-item mr-3">
-                        <img id="QQCode" width="170" height="170" src="/media/QRcode/QQCode.jpg" alt="QQ二维码" >
-                        <img id="WeChatCode" width="170" height="170" src="/media/QRcode/WeChatCode.jpg" alt="微信二维码" >
+                        <img id="QQCode" width="170" height="170" src="/media/QRcode/QQCode.jpg" alt="QQ二维码">
+                        <img id="WeChatCode" width="170" height="170" src="/media/QRcode/WeChatCode.jpg" alt="微信二维码">
                         <a class="text-color" id="id_qq">
                             <i class="fa fa-qq fa-2x fa-fw"></i>
                         </a>

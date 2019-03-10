@@ -40,6 +40,8 @@ urlpatterns = [
 
     # 发送验证码到邮箱
     url(r'^send_codes/', views.sendVaildEmail),
+    # ajax查找头像
+    url(r'getAvatar/$', views.getAvatar),
     # app01
     url(r'^blog/', include("app01.urls"))
 ]

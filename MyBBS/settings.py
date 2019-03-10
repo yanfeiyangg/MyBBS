@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 import os
 # djcelery 配置
 import djcelery
+
 djcelery.setup_loader()
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -43,7 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'app01.apps.App01Config',
-    'djcelery'
+    'djcelery',
 ]
 
 MIDDLEWARE = [
@@ -169,9 +170,9 @@ DEFAULT_FROM_EMAIL = conf.get("email", "DEFAULT_FROM_EMAIL")  # 默认发件人
 
 # 配置Celery
 # 消息中间件（使用redis），消息代理，用于发布者传递消息给消费者
-BROKER_URL = conf.get("celery","url")
+BROKER_URL = conf.get("celery", "url")
 # 消息结果返回中间件（使用redis），用于存储任务执行结果
-CELERY_RESULT_BACKEND = conf.get("celery","url")
+CELERY_RESULT_BACKEND = conf.get("celery", "url")
 # 允许的内容类型，
 CELERY_ACCEPT_CONTENT = ['json']
 # 任务的序列化方式

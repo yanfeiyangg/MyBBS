@@ -84,9 +84,12 @@ def reg(request):
             pwd = form.cleaned_data.get('pwd')
             email = form.cleaned_data.get('email')
             avatar = request.FILES.get('avatar')
-            # avtar的名字不能为中文名
             blog = models.Blog.objects.create(title=username, site=username, theme=username + ".css")
-            models.UserInfo.objects.create_user(blog=blog, username=username, password=pwd, email=email, avatar=avatar)
+            if avatar:
+            # avtar的名字不能为中文名
+                models.UserInfo.objects.create_user(blog=blog, username=username, password=pwd, email=email, avatar=avatar)
+            else:
+                models.UserInfo.objects.create_user(blog=blog, username=username, password=pwd, email=email)
             return JsonResponse(res)
         else:
             # 错误的数据
@@ -159,7 +162,7 @@ def get_vaild_img(request):
     # 把验证码和IP信息绑定后存入Redis
     ip = get_ip(request)
     key = "login:{0}".format(ip)
-    REDIS.setex(key,codes,30) # 30s过期时间
+    REDIS.setex(key, codes, 30)  # 30s过期时间
     # 返回图片
     return HttpResponse(img)
 
@@ -503,3 +506,12 @@ def get_ip(request):
     else:
         ip = request.META.get('REMOTE_ADDR')  # 这里获得代理ip
     return ip
+
+
+# ajax请求头像
+def getAvatar(request):
+    if request.is_ajax():
+        username = request.GET.get("username")
+        avatar = models.UserInfo.objects.filter(username=username).values_list("avatar")
+        url = avatar[0][0]
+        return JsonResponse({"data": url})
