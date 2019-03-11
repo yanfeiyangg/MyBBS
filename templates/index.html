@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="/static/fontawesome/css/font-awesome.css">
     <link rel="stylesheet" href="/static/css/index.css">
     <link rel="stylesheet" href="/static/css/homesite.css">
-    <title>首页</title>
+    <title>学习博客论坛 - 首页</title>
 </head>
 <body>
 
@@ -24,9 +24,9 @@
         <div class="nav-rig">
             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                 <ul class="nav navbar-nav">
-                    <li class="active"><a href="/">首页 <span class="sr-only">(current)</span></a></li>
-                    <li><a href="/blog/{{ user.username }}">博客</a></li>
-                    <li><a href="/blog/backend/">管理</a></li>
+                    <li class="active"><a href="{% url "index" %}">首页 <span class="sr-only">(current)</span></a></li>
+                    <li><a href="{% url "homesite" request.user.username %}">博客</a></li>
+                    <li><a href="{% url "backend" %}">管理</a></li>
                     <li><a href="#">关于</a></li>
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
@@ -39,14 +39,14 @@
                             <ul class="dropdown-menu">
                                 <li><a href="#">个人中心</a></li>
                                 <li><a href="#">修改密码</a></li>
-                                <li><a href="/login/">切换用户</a></li>
+                                <li><a href="{% url "login" %}">切换用户</a></li>
                                 <li role="separator" class="divider"></li>
-                                <li><a href="/logout/">注销</a></li>
+                                <li><a href="{% url "logout" %}">注销</a></li>
                             </ul>
                         </li>
                     {% else %}
-                        <li><a href="/login/">登录</a></li>
-                        <li><a href="/reg/">注册</a></li>
+                        <li><a href="{% url "login" %}">登录</a></li>
+                        <li><a href="{% url "reg" %}">注册</a></li>
                     {% endif %}
                 </ul>
             </div>
@@ -72,7 +72,7 @@
                         <div class="article_item">
                             <div class="article_title">
                                 <h4><a class="text-dark" target="_blank"
-                                       href="/blog/{{ article.user.username }}/articles/{{ article.pk }}/">{{ article.title }}</a>
+                                       href="{% url "article_detail" article.user.username article.pk %}">{{ article.title }}</a>
                                 </h4>
                             </div>
                             <div class="article_body">
@@ -82,7 +82,7 @@
                             </div>
                             <div class="article_foot text-right">
                                 <span>
-                                    <a href="/blog/{{ article.user.username }}/">{{ article.user.username }}</a>&nbsp;&nbsp;
+                                    <a href="{% url "homesite" article.user.username %}">{{ article.user.username }}</a>&nbsp;&nbsp;
                                 </span>
                                 <span>{{ article.create_time|date:"Y-m-d" }}</span>
                                 <span> 浏览量：{{ article.pk|getView|default_if_none:"0" }}</span>
@@ -93,37 +93,10 @@
                 </div>
                 {{ page.show }}
             </div>
-            <div class="col-md-4 panel_list">
-                <div class="menu">
-                    <div class="panel panel-default">
-                        <div class="panel-heading">分类归档</div>
-                        <div class="panel-body">
-                            {% for cate in cate_list %}
-                                <a href="/index/cate/{{ cate.0 }}/">{{ cate.0 }}<span
-                                        class="label label-default panel_num">{{ cate.1 }}</span></a>
-                            {% endfor %}
-                        </div>
-                    </div>
-                    <div class="panel panel-default">
-                        <div class="panel-heading">标签归档</div>
-                        <div class="panel-body">
-                            {% for tag in tag_list %}
-                                <a href="/index/tag/{{ tag.0 }}/">{{ tag.0 }}<span
-                                        class="label label-default panel_num">{{ tag.1 }}</span></a>
-                            {% endfor %}
-
-                        </div>
-                    </div>
-                    <div class="panel panel-default">
-                        <div class="panel-heading">日期归档</div>
-                        <div class="panel-body">
-                            {% for date in date_list %}
-                                <a href="/index/date/{{ date.0 }}">{{ date.0 }}<span
-                                        class="label label-default panel_num">{{ date.1 }}</span></a>
-                            {% endfor %}
-                        </div>
-                    </div>
-                </div>
+            <!-- top10 与 标签、分类筛选-->
+            <div class="col-md-4 ">
+                {% get_top10 %}
+                {% get_menu %}
             </div>
         </div>
     </div>
@@ -135,11 +108,11 @@
             <div class="col-md-6">
                 <ul class="list-inline">
                     <li class="list-inline-item">
-                        <a href="/index/" class="text-color">首页</a>
+                        <a href="{% url "index" %}" class="text-color">首页</a>
                     </li>
                     <li class="list-inline-item">⋅</li>
                     <li class="list-inline-item">
-                        <a href="/blog/{{ user.username }}" class="text-color">博客</a>
+                        <a href="{% url "homesite" request.user.username %}" class="text-color">博客</a>
                     </li>
                     <li class="list-inline-item">⋅</li>
                     <li class="list-inline-item">

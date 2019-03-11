@@ -26,14 +26,14 @@ urlpatterns = [
     url(r'^media/(?P<path>.*)$', serve, {"document_root": settings.MEDIA_ROOT}),
     #
 
-    url(r'^login/', views.login),
-    url(r'^reg/', views.reg),
-    url(r'^logout/', views.logout),
+    url(r'^login/', views.login, name="login"),
+    url(r'^reg/', views.reg, name="reg"),
+    url(r'^logout/', views.logout, name="logout"),
     url(r'^get_vaild_img/', views.get_vaild_img),
     # 加入 position 和 parameter ，用于首页筛选所有文章
-    url(r'^index/(?P<position>cate|tag|date)/(?P<parameter>[\w\W]+)/', views.index),
+    url(r'^index/(?P<position>cate|tag|date)/(?P<parameter>[\w\W]+)/', views.index, name="index_param"),
     url(r'^$', views.index),
-    url(r'^index/$', views.index),
+    url(r'^index/$', views.index, name="index"),
 
     # 上传图片
     url(r'^upload/', views.upload),

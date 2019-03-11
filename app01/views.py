@@ -1,4 +1,4 @@
-from django.shortcuts import render, HttpResponse, redirect
+from django.shortcuts import render, HttpResponse, redirect,reverse
 from django.http import JsonResponse
 from django.db.models import F
 from django.db.models import Avg, Count
@@ -27,33 +27,35 @@ from .tasks import send_email
 
 # 浏览量对象
 class ViewObj:
-    # 对“新文章”初始化浏览数为0
-    def initView(self, article_id):
-        s = "visit:%s:totals" % article_id
-        REDIS.set(s, 0)
-
     # 浏览数 + 1
     def addView(self, request, article_id):
         # 获取IP
         ip = get_ip(request)
         # 判断是否存在访问锁
         lock = self.getViewLock(article_id, ip)
+        print("是否存在锁:", lock)
         if not lock:
             s = "visit:%s:totals" % article_id
             # 增加点击量
-            REDIS.incr(s)
+            REDIS.zincrby("visit_rank", s)
             # 添加访问锁
             self.addViewLock(article_id, ip)
 
     # 删除文章的同时，删除点击数
     def delView(self, article_id):
         s = "visit:%s:totals" % article_id
-        REDIS.delete(s)
+        REDIS.zrem("visit_rank", s)
 
     # 获取文章点击数
     def getView(self, article_id):
         s = "visit:%s:totals" % article_id
-        return REDIS.get(s)
+        return int(REDIS.zscore("visit_rank", s)) if REDIS.zscore("visit_rank", s) else None
+
+    # 获取文章点击数前10名
+    def getTop10View(self):
+        lst = REDIS.zscan("visit_rank")[1][::-1][:10]
+        res = [(i[0].split(":")[1], int(i[1])) for i in lst]
+        return res
 
     # 添加访问锁，IP在30s内重复访问同一篇文章，只对浏览数+1
     def addViewLock(self, article_id, ip):
@@ -86,8 +88,9 @@ def reg(request):
             avatar = request.FILES.get('avatar')
             blog = models.Blog.objects.create(title=username, site=username, theme=username + ".css")
             if avatar:
-            # avtar的名字不能为中文名
-                models.UserInfo.objects.create_user(blog=blog, username=username, password=pwd, email=email, avatar=avatar)
+                # avtar的名字不能为中文名
+                models.UserInfo.objects.create_user(blog=blog, username=username, password=pwd, email=email,
+                                                    avatar=avatar)
             else:
                 models.UserInfo.objects.create_user(blog=blog, username=username, password=pwd, email=email)
             return JsonResponse(res)
@@ -123,7 +126,7 @@ def sendVaildEmail(request):
             print("生成验证码：", codes)
             msg = "亲爱的 {0},您好。您的注册验证码为：{1}".format(username, codes)
             # 通过celery异步发送邮件
-            send_email.delay("MyBBS - 注册验证码", msg, email)
+            send_email.delay("CTBU学习博客论坛 - 注册验证码", msg, email)
             # 把验证码加入缓存
             REDIS.setex(key, codes, 300)
         except Exception:
@@ -217,16 +220,6 @@ def logout(request):
 
 # 首页
 def index(request, **kwargs):
-    # ************   获取所有标签、分类、日期归档等 *********************
-    # 找到博客下的所有分类以及对应的文章数量
-    cate_list = models.Category.objects.all().annotate(count=Count("article")).values_list("title", "count")
-    # 找到博客下的所有标签以及对应的文章数量
-    tag_list = models.Tag.objects.all().annotate(count=Count("article")).values_list("title", "count")
-    # 日期归档
-    date_list = models.Article.objects.all().extra(
-        select={"create_ym": "DATE_FORMAT(create_time,'%%Y-%%m')"}).values("create_ym").annotate(
-        count=Count("*")).values_list("create_ym", "count")
-
     # *********************************************************************#
     # 获取筛选内容
     pos = kwargs.get('position', None)
@@ -258,6 +251,9 @@ def index(request, **kwargs):
 # 个人主页
 def homesite(request, **kwargs):
     username = kwargs.get('username')
+    print(username)
+    if not username:
+        return redirect(reverse("login"))
     # 通过username找到对应的user对象
     user = models.UserInfo.objects.filter(username=username).first()
     # 通过博客，找到该博客的所有文章
@@ -291,11 +287,10 @@ def homesite(request, **kwargs):
 def article_detail(request, username, article_id):
     # 通过username找到对应的user对象,作为参数传到base.html中
     if request.method == "GET":
-        if not v.getView(article_id):
-            v.initView(article_id)
         # 点击数 +1
         v.addView(request, article_id)
         click_count = v.getView(article_id)
+        print(click_count)
         # 获取文章信息
         user = models.UserInfo.objects.filter(username=username).first()
         article = models.Article.objects.filter(pk=article_id).first()
@@ -359,7 +354,7 @@ def comment(request):
 def backend(request):
     # 判断是否登录
     if not request.user.username:
-        return redirect("/login/")
+        return redirect(reverse("login"))
     # 查询所有文章
     user_id = request.user.pk
     article_list = models.Article.objects.filter(user_id=user_id)
@@ -372,14 +367,14 @@ def backend(request):
 def add_article(request):
     if request.method == "GET":
         user_id = request.user.pk
-        cate_list = models.Category.objects.all()
+        cate_list = models.Category.objects.filter(blog__userinfo__nid=user_id)
         tag_list = models.Tag.objects.filter(blog__userinfo__nid=user_id)
         return render(request, "add_article.html", locals())
     if request.method == "POST":
         # 获取文章信息
         title = request.POST.get("title")
         cate = request.POST.get("choice_cate")
-        cate = cate if cate != -1 else None
+        cate = cate if cate != "-1" else None
         tag_lst = request.POST.getlist("choice_tag")
         article_content = request.POST.get("article_content")
         # 获得desc
@@ -395,7 +390,7 @@ def add_article(request):
         try:
             # 把添加文章步骤封装为 事务，保证原子性
             with transaction.atomic():
-                article = models.Article.objects.create(user=user, title=title, desc=desc, category_id=cate)
+                article = models.Article.objects.create(user=user, title=title, desc=desc, category=cate)
                 models.ArticleDetail.objects.create(article=article, content=str(bs))
                 if len(tag_lst) > 0:
                     tag_obj_list = models.Tag.objects.filter(nid__in=tag_lst)
@@ -403,7 +398,8 @@ def add_article(request):
                     for i in tag_obj_list:
                         models.Article2Tag.objects.create(article=article, tag=i)
 
-        except Exception:
+        except Exception as e:
+            print(e)
             return render(request, "400.html")
         return redirect("/blog/backend/")
 
@@ -432,7 +428,7 @@ def edit_article(request, article_id):
         tag_choice_list = [i[0] for i in
                            models.Article2Tag.objects.filter(article_id=article_id).values_list("tag__nid")]
         # 所有分类
-        cate_list = models.Category.objects.all()
+        cate_list = models.Category.objects.filter(blog__userinfo__nid=request.user.pk)
         # 所有标签
         tag_list = models.Tag.objects.filter(blog__userinfo__nid=request.user.pk)
         data = {
@@ -446,7 +442,7 @@ def edit_article(request, article_id):
         title = request.POST.get("title")
         article_content = request.POST.get("article_content")
         cate = request.POST.get("choice_cate")
-        cate = cate if cate != -1 else None
+        cate = cate if cate != "-1" else None
         tag_lst = request.POST.getlist("choice_tag")
         username = request.user.username
         # 获得desc
@@ -464,7 +460,7 @@ def edit_article(request, article_id):
         try:
             # 封装成事务，保证原子性
             with transaction.atomic():
-                article.update(title=title, desc=desc, category_id=cate)
+                article.update(title=title, desc=desc, category=cate)
                 # 更改文章详细内容
                 articleDetail = models.ArticleDetail.objects.filter(article_id=article_id).update(content=str(bs))
                 # 先删除原标签，添加新标签
@@ -472,7 +468,8 @@ def edit_article(request, article_id):
                     i.delete()
                 for i in tag_lst:
                     models.Article2Tag.objects.create(article_id=article_id, tag_id=i)
-        except Exception:
+        except Exception as e:
+            print(e)
             return render(request, "400.html")
         return redirect("/blog/" + username + "/articles/" + article_id)
 

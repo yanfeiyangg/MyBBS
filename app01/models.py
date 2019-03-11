@@ -7,7 +7,7 @@ class UserInfo(AbstractUser):
     用户信息
     """
     nid = models.AutoField(primary_key=True)
-    telephone = models.CharField(max_length=11, null=True, unique=True)
+    telephone = models.CharField(max_length=11, null=True, unique=True,blank=True)
     avatar = models.FileField(upload_to='avatars/', default="/avatars/default.png")
     create_time = models.DateTimeField(verbose_name='创建时间', auto_now_add=True)
     # 博客信息，一对一
@@ -24,8 +24,8 @@ class Blog(models.Model):
 
     nid = models.AutoField(primary_key=True)
     title = models.CharField(verbose_name='个人博客标题', max_length=64)
-    site = models.CharField(verbose_name='个人博客后缀', max_length=32, unique=True)
-    theme = models.CharField(verbose_name='博客主题', max_length=32)
+    site = models.CharField(verbose_name='个人博客后缀', max_length=32, unique=True,blank=True)
+    theme = models.CharField(verbose_name='博客主题', max_length=32,blank=True)
 
     def __str__(self):
         return self.title
@@ -68,7 +68,7 @@ class Article(models.Model):
     up_count = models.IntegerField(default=0)
     down_count = models.IntegerField(default=0)
     # 外键字段
-    category = models.ForeignKey(to='Category', to_field='nid', null=True)
+    category = models.ForeignKey(to='Category', to_field='nid', null=True, blank=True)
     user = models.ForeignKey(verbose_name='作者', to='UserInfo', to_field='nid')
     tags = models.ManyToManyField(
         to="Tag",

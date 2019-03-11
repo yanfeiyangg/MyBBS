@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>注册</title>
+    <title>CTBU学习博客论坛 - 注册</title>
     <link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="/static/fontawesome/css/font-awesome.min.css">
     <style>
@@ -134,7 +134,7 @@
 
         // 倒计时
         function startTimer() {
-            $time = 5;
+            $time = 30;
             $timer = setInterval(function () {
                 $("#btn_send")[0].value = "重新发送(" + $time + "s)";
                 $time -= 1;
@@ -188,7 +188,7 @@
                                 $("#error_re_pwd").html(error[0]);
                                 $("#id_re_pwd").parent().addClass("has-error");
                             }
-                            if (name != "code" ) {
+                            if (name != "code") {
                                 $("#error_" + name).html(error[0]);
                                 $("#id_" + name).parent().addClass("has-error");
                             }
@@ -210,7 +210,7 @@
                 processData: false,
                 contentType: false,
                 data: formdata,
-                success:function (data) {
+                success: function (data) {
                     console.log(data);
                 }
             })

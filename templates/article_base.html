@@ -28,17 +28,61 @@
 <body>
 {#导航栏#}
 {% block head %}
+    <nav class="navbar navbar-default navbar-fixed-top">
+        <div class="container-fluid">
+            <div class="nav-mar">
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="#">
+                        <img alt="Brand" src="/static/img/ctbulogo.gif" width="200">
+                    </a>
+                    {#            <a class="navbar-brand" href="#">CTBU学习论坛</a>#}
+                </div>
+            </div>
+            <div class="nav-rig">
+                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                    <ul class="nav navbar-nav">
+                        <li><a href="{% url "index" %}">首页 <span class="sr-only">(current)</span></a></li>
+                        <li class="active"><a href="{% url "homesite" user.username %}">博客</a></li>
+                        <li><a href="{% url "backend" %}">管理</a></li>
+                        <li><a href="#">关于</a></li>
+                    </ul>
+                    <ul class="nav navbar-nav navbar-right">
+                        {% if request.user.username %}
+                            <li><a href="#">{{ request.user.username }}</a></li>
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
+                                   aria-haspopup="true"
+                                   aria-expanded="false">设置 <span class="caret"></span></a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="#">个人中心</a></li>
+                                    <li><a href="#">修改密码</a></li>
+                                    <li><a href="{% url "login" %}">切换用户</a></li>
+                                    <li role="separator" class="divider"></li>
+                                    <li><a href="{% url "logout" %}">注销</a></li>
+                                </ul>
+                            </li>
+                        {% else %}
+                            <li><a href="{% url "login" %}">登录</a></li>
+                            <li><a href="{% url "reg" %}">注册</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
 {% endblock %}
 
 
 <div class="container">
-
-    <div class="col-md-6 col-md-offset-3 con-right">
+    <div class="col-md-3 top_list">
+        {% get_top10 %}
+    </div>
+    <div class="col-md-6 con-right">
         {% block content %}
         {% endblock %}
     </div>
     <div class="col-md-3 panel_list">
-        {% get_menu username %}
+        {% get_menu request.user.username %}
     </div>
 
 </div>

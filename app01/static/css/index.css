@@ -186,5 +186,45 @@ footer a:focus{
     top: -125px;
 }
 
+.top_list{
+    width: 311px;
+    margin-top: 10px;
+    list-style: none;
+
+}
+.top_list a{
+    padding: 6px;
+    font-size: 15px;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    color: rgb(0,123,255);
+}
+
+.top_list .index{
+    float: left;
+    border: 1px solid rgb(0,123,255);
+    border-radius: 100%;
+    width: 21px;
+    height: 21px;
+    text-align: center;
+    margin-right: 5px;
+    color: white;
+    background-color: rgb(0,123,255);
+}
+
+.top_list .index_red{
+    float: left;
+    border: 1px solid red;
+    border-radius: 100%;
+    width: 21px;
+    height: 21px;
+    text-align: center;
+    margin-right: 5px;
+    color: white;
+    background-color: red;
+}
+
+
+
 
 

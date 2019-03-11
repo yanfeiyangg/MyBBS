@@ -1,0 +1,24 @@
+{% load my_tags %}
+<div class="panel panel-default">
+    <div class="panel-heading">热门文章Top10</div>
+    <div class="panel-body">
+        <ul>
+            {% for data in data_list %}
+                <li class="top_list">
+                    <a href="/blog/{{ data.0|getArticleUsername }}/articles/{{ data.0 }}/">
+                        <span class="{% if forloop.counter == 1 %}index_red{% else %}index{% endif %}">
+                            {{ forloop.counter }}
+                        </span>
+                        {% if data.0|getArticleTitle|length > 17 %}
+                            {{ data.0|getArticleTitle|slice:"17" }}...
+                        {% else %}
+                            {{ data.0|getArticleTitle }}
+                        {% endif %}
+                    </a>
+                </li>
+            {% endfor %}
+
+        </ul>
+
+    </div>
+</div>
