@@ -17,6 +17,10 @@
                 </div>
                 <div class="form-group">
                     <label>分类：</label>
+                    <a href="#">
+                        <i class="fa fa-plus" data-toggle="modal" data-target=".add_cate"
+                           style="color: green;float: right"> &nbsp;添加分类</i>
+                    </a>
                     <select name="choice_cate" id="inputCate" class="form-control">
                         <option value="-1">请选择分类</option>
                         {% for cate in cate_list %}
@@ -30,6 +34,10 @@
                 </div>
                 <div class="form-group">
                     <label for="inputCate">标签：</label>
+                    <a href="#">
+                        <i class="fa fa-plus" data-toggle="modal" data-target=".add_tag"
+                           style="color:green;float: right"> &nbsp;添加标签</i>
+                    </a>
                     <div>
                         {% for tag in tag_list %}
                             {% if tag.pk in tag_choice_list %}
@@ -48,11 +56,55 @@
                 <div class="form-group">
                     <label for="article_content">内容：</label>
                     <textarea class="form-control" name="article_content" id="article_content" cols="30"
-                              rows="10">{{ data.content }}</textarea>
+                              rows="10">{{ data.content|default_if_none:"" }}</textarea>
                 </div>
                 <input type="submit" class="btn btn-info" value="提交">
             </form>
         </div>
+    </div>
+    <!-- 模态框：添加分类 -->
+    <div class="modal fade add_cate" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">添加分类</h4>
+                </div>
+                <div class="modal-body row">
+                    <div class="col-md-6 col-md-offset-3">
+                        <label for="input_add_cate">分类名：</label>
+                        <input type="text" class="form-control" id="input_add_cate">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" id="btn_add_cate">添加</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div>
+    <!-- 模态框：添加标签 -->
+    <div class="modal fade add_tag" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">添加标签</h4>
+                </div>
+                <div class="modal-body row">
+                    <div class="col-md-6 col-md-offset-3">
+                        <label for="input_add_tag">标签名：</label>
+                        <input type="text" class="form-control" id="input_add_tag">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" id="btn_add_tag">添加</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
     </div>
     <!--富本文编译器-->
     <script charset="utf-8" src="/static/kindeditor/kindeditor-all.js"></script>
@@ -64,10 +116,57 @@
                 resizeType: 0,
                 uploadJson: "/upload/",
                 filePostName: "upload_img",
+                imageSizeLimit : '5MB', //限制上传图片的大小
+                items:[
+                    'undo', 'redo', '|', 'preview', 'print',  'code', 'cut', 'copy', 'paste','plainpaste',
+                    'wordpaste', '|', 'justifyleft', 'justifycenter', 'justifyright','justifyfull',
+                    'insertorderedlist', 'insertunorderedlist', 'indent', 'outdent', 'subscript',
+                    'superscript', 'clearhtml', 'quickformat', 'selectall', '|', 'fullscreen', '/',
+                    'formatblock', 'fontname', 'fontsize', '|', 'forecolor', 'hilitecolor', 'bold',
+                    'italic', 'underline', 'strikethrough', 'lineheight', 'removeformat', '|', 'image',
+                    'table', 'hr', 'emoticons', 'baidumap', 'pagebreak','anchor', 'link', 'unlink',],
                 extraFileUploadParams: {
                     csrfmiddlewaretoken: $("[name='csrfmiddlewaretoken']").val()
                 }
             });
+        });
+
+        $("#btn_add_cate").click(function () {
+            $cate = $("#input_add_cate").val();
+            $data = {"cate": $cate, "csrfmiddlewaretoken": $("[name='csrfmiddlewaretoken']").val()};
+            $.ajax({
+                type: "post",
+                url: "/blog/backend/add_category/",
+                dataType: "json",
+                data: $data,
+                success: function (data) {
+                    console.log(data);
+                    if (data["state"] == "1") {
+                        window.location.reload();
+                    } else {
+                        alert("异常！添加失败！");
+                    }
+                }
+            })
+        });
+
+        $("#btn_add_tag").click(function () {
+            $cate = $("#input_add_tag").val();
+            $data = {"tag": $cate, "csrfmiddlewaretoken": $("[name='csrfmiddlewaretoken']").val()};
+            $.ajax({
+                type: "post",
+                url: "/blog/backend/add_tag/",
+                dataType: "json",
+                data: $data,
+                success: function (data) {
+                    console.log(data);
+                    if (data["state"] == "1") {
+                        window.location.reload();
+                    } else {
+                        alert("异常！添加失败！");
+                    }
+                }
+            })
         });
     </script>
 {% endblock %}

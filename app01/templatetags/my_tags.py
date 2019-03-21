@@ -8,6 +8,7 @@ register = template.Library()
 
 @register.inclusion_tag("menu.html")
 def get_menu(username=None):
+    # username 为空，表示首页
     if username == None:
         # ************   获取所有标签、分类、日期归档等 *********************
         # 找到博客下的所有分类以及对应的文章数量
