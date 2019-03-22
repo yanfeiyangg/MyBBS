@@ -1,7 +1,7 @@
 <div class="menu panel_list">
     {% if cate_list|length != 0 %}
         <div class="panel panel-default">
-            <div class="panel-heading">分类归档</div>
+            <div class="panel-heading">{% if username %}分类归档{% else %}热门分类{% endif %}</div>
             <div class="panel-body">
                 {% if username %}
                     {% for cate in cate_list %}
@@ -27,7 +27,7 @@
     {% endif %}
     {% if tag_list|length != 0 %}
         <div class="panel panel-default">
-            <div class="panel-heading">标签归档</div>
+            <div class="panel-heading">{% if username %}标签归档{% else %}热门标签{% endif %}</div>
             <div class="panel-body">
                 {% if username %}
                     {% for tag in tag_list %}
